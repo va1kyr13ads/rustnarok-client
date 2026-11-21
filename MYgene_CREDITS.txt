@@ -1,0 +1,28 @@
+MYgene Client — Credits and License Information
+================================================
+MYgene Client is a customized Windows build of the open-source
+Rustnarok Client project for the MYgene Ragnarok Online server.
+
+Original client project:
+  Rustnarok Client contributors
+  https://github.com/kindraywind/rustnarok-client
+
+MYgene customization:
+  https://github.com/va1kyr13ads/rustnarok-client
+  Enter-to-chat interaction, translucent inactive chat field,
+  MYgene branding and Windows build packaging.
+
+Source code license: MIT OR Apache-2.0.
+The LICENSE-MIT and LICENSE-APACHE files included with this
+distribution preserve the original open-source license notices.
+Do not remove copyright/license notices from source files.
+
+Ragnarok Online, characters, artwork, sounds, logos and original
+game assets remain the property of their respective rights holders.
+This package is not an official Gravity / Ragnarok Online client.
+No game data, GRF archives or login credentials are included.
+Use this client only with game assets you are authorized to use.
+
+The internal Rust crate/module name may remain rustnarok-client
+for compatibility. Player-facing branding does not change the
+origin of the underlying open-source project.
