@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - mygene-enter-chat
+      - feature/yellow-fabre
     paths:
       - "src/**"
       - "Cargo.toml"
