@@ -32,14 +32,16 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Copy-Item -LiteralPath "target/release/rustnarok-client.exe" -Destination "dist/rustnarok-client.exe"
+          Copy-Item -LiteralPath "target/release/rustnarok-client.exe" -Destination "dist/MYgeneClient.exe"
           Copy-Item -LiteralPath "LICENSE-MIT" -Destination dist
           Copy-Item -LiteralPath "LICENSE-APACHE" -Destination dist
-          $hash = (Get-FileHash -LiteralPath "dist/rustnarok-client.exe" -Algorithm SHA256).Hash.ToLowerInvariant()
-          Set-Content -LiteralPath "dist/SHA256.txt" -Value "$hash  rustnarok-client.exe" -Encoding ascii
+          Copy-Item -LiteralPath "MYgene_CREDITS.txt" -Destination dist
+          Copy-Item -LiteralPath "MYgene_START_HERE.txt" -Destination dist
+          $hash = (Get-FileHash -LiteralPath "dist/MYgeneClient.exe" -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -LiteralPath "dist/SHA256.txt" -Value "$hash  MYgeneClient.exe" -Encoding ascii
       - name: Upload Windows client artifact
         uses: actions/upload-artifact@v4
         with:
-          name: MYgene-Rustnarok-Windows
+          name: MYgene-Windows-Client
           path: dist/*
           if-no-files-found: error
