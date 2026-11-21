@@ -2177,7 +2177,15 @@ fn job_sprites(grf: &Grf, job_names: &HashMap<u16, String>, kind: u8, job: u16) 
     if HIDDEN_JOBS.contains(&job) || job == WARP_JOB {
         return None;
     }
-    job_names.get(&job).and_then(|name| SpriteSet::single(grf, name, kind))
+    // MYgene custom Yellow Fabre (31050): animated with the real Fabre (1007)
+    // sprite supplied by the user's GRF, then recolored in memory to yellow.
+    // No new proprietary game assets are distributed.
+    let base_job = if kind == MONSTER && job == 31050 { 1007 } else { job };
+    let mut sprites = job_names.get(&base_job).and_then(|name| SpriteSet::single(grf, name, kind))?;
+    if kind == MONSTER && job == 31050 {
+        sprites.make_yellow_fabre();
+    }
+    Some(sprites)
 }
 
 /// Applies a ZC_SPRITE_CHANGE to a look; returns whether it changed anything drawn.
