@@ -1,7 +1,5 @@
 <div align="center">
 
-<img src="assets/icon.png" width="128" alt="rustnarok-client">
-
 # MYgene Client
 
 **MYgene-branded Windows client — customized fork of [Rustnarok Client](https://github.com/kindraywind/rustnarok-client).**
