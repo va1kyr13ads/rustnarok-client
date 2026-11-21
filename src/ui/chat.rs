@@ -785,6 +785,8 @@ pub struct Assets {
     /// The lock at the strip's right: locked and not.
     lock: [Texture; 2],
     dark: Texture,
+    /// Faint backdrop for MYgene's inactive, transparent chat input.
+    inactive_input: Texture,
     tab_dark: Texture,
     darker: Texture,
     white: Texture,
@@ -824,6 +826,7 @@ impl Assets {
             grip: gpu.load_texture(grf, &format!("{UI}btn_resize.bmp"), false),
             lock: [image("lock_dragwnd"), image("unlock_dragwnd")],
             dark: gpu.solid(DARK),
+            inactive_input: gpu.solid([0, 0, 0, 0x28]),
             tab_dark: gpu.solid(TAB_DARK),
             darker: gpu.solid(DARKER),
             white: gpu.solid([255; 4]),
@@ -1229,7 +1232,8 @@ impl Chat {
             // Battle mode's closed line takes the bar's boxes and buttons away: all of it is the bare window then.
             let line_open = self.mode_icon != Some(false);
             return Some(if !line_open {
-                Hit::Strip
+                // Clicking the faded message input reopens chat without losing focus.
+                if in_bar(MESSAGE_BOX.0, MESSAGE_BOX.1) { Hit::Message } else { Hit::Strip }
             } else if in_bar(SIZE_BUTTON, BUTTON_SIZE) {
                 Hit::Size
             } else if in_bar(SEND_TO_BUTTON, BUTTON_SIZE) {
@@ -2052,6 +2056,13 @@ impl Chat {
         self.groups_open = false;
     }
 
+    /// Esc cancels an unsent MYgene draft rather than leaving hidden text.
+    pub fn cancel_battle_line(&mut self) {
+        self.input.clear();
+        self.close_battle_line();
+        self.stale = false;
+    }
+
     /// The line opened again: what was typed is kept.
     pub fn reopened(&mut self) {
         self.stale = false;
@@ -2148,6 +2159,9 @@ impl Chat {
             }
         }
         if !open {
+            // MYgene: leave a faint, transparent input strip but no white box or blinking caret.
+            // Keep the chat history drawn above unchanged.
+            layer.sprites.push((&assets.inactive_input, at([0.0, self.height() - INPUT_HEIGHT]), [WIDTH, INPUT_HEIGHT]));
             return link_boxes;
         }
 
