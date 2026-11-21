@@ -48,6 +48,13 @@ impl Mode {
         if self.on { ON_MESSAGE } else { OFF_MESSAGE }
     }
 
+    /// MYgene: an Enter that actually sent a line returns to normal gameplay.
+    pub fn sent_line(&mut self) {
+        if self.on {
+            self.line_open = false;
+        }
+    }
+
     /// The chat window's icon: opens or closes the line, in battle mode.
     pub fn toggle_line(&mut self) {
         if self.on {
@@ -87,8 +94,12 @@ impl Mode {
         Take::Type
     }
 
+    /// MYgene defaults to Enter-to-chat with a closed, translucent input strip.
+    /// Store this separately from upstream's battle-mode preference.
     pub fn load() -> Self {
-        Self::path().map_or_else(Self::default, |path| Self::load_from(&path))
+        Self::path()
+            .filter(|path| path.exists())
+            .map_or(Self { on: true, line_open: false }, |path| Self::load_from(&path))
     }
 
     pub fn save(&self) {
@@ -108,7 +119,7 @@ impl Mode {
 
     fn path() -> Option<PathBuf> {
         // The ChangeChatMode option, beside the other saved settings.
-        crate::settings_path("chatmode")
+        crate::settings_path("mygene_chatmode")
     }
 }
 
@@ -285,6 +296,19 @@ mod tests {
         assert_eq!(apply_draft(&mut mode, &mut draft, KeyKind::Enter, false, false, &bindings), Delivery::Closed);
         assert!(!mode.chat_line_open());
         assert!(draft.is_empty());
+    }
+
+    #[test]
+    fn mygene_enter_send_returns_to_closed_line() {
+        let mut mode = closed();
+        assert_eq!(mode.take_key(KeyKind::Enter, true, false), Take::Opened);
+        assert!(mode.chat_line_open());
+        // The keyboard sends a nonempty draft, then reports a completed line.
+        assert_eq!(mode.take_key(KeyKind::Enter, false, false), Take::Type);
+        mode.sent_line();
+        assert!(!mode.chat_line_open());
+        assert_eq!(mode.take_key(KeyKind::Enter, true, false), Take::Opened);
+        assert!(mode.chat_line_open());
     }
 
     #[test]
