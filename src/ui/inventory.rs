@@ -426,7 +426,11 @@ impl CardNames {
     pub fn load(grf: &Grf) -> Self {
         let codepage = rustnarok_client::net::data_codepage();
         let text = |path: &str| grf.read(path).map(|bytes| codepage.decode_without_bom_handling(&bytes).0.into_owned()).unwrap_or_default();
-        Self::parse(&text(CARD_WORDS), &text(CARDS_AFTER))
+        let mut names = Self::parse(&text(CARD_WORDS), &text(CARDS_AFTER));
+        // MYgene Yellow Fabre Card is a custom weapon card; its visible
+        // compound name gets a readable prefix even without a GRF patch.
+        names.words.insert(31002, "Yellow Fabre".to_owned());
+        names
     }
 
     /// `<card>#<word>#` lines, and `<card>#` lines for those after the name.
