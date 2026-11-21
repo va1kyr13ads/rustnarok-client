@@ -1,0 +1,30 @@
+MYgene Client — Windows test build
+==================================
+
+This ZIP contains a custom Windows executable ONLY.
+It does NOT include Ragnarok game assets, game accounts, passwords, or servers.
+
+1. Leave your currently working Rustnarok installation untouched.
+2. Copy MYgeneClient.exe next to your original rustnarok-client.exe
+   inside the existing MYgene test-client folder.
+3. Preserve that folder's data/clientinfo.xml and authorized game data.
+4. Keep your MYgene Codespaces rAthena servers and private GitHub
+   Codespaces port forwards running (login 6900, char 6121, map 5121).
+5. If your working assets are in another folder, set the path in a
+   Windows PowerShell session before launching, for example:
+
+   $env:RUSTNAROK_CLIENT_GRF = "C:\Users\shini\Documents\ROVAL\data.grf"
+   Set-Location "C:\Games\MYgene-Rustnarok-Test\rustnarok-client-0.4.0-windows-x86_64"
+   .\MYgeneClient.exe
+
+6. The game window should be titled MYgene Client.
+7. Test Enter to type; Enter to send/exit; empty Enter to exit;
+   Esc to cancel; click the faint input field to type.
+
+Verify MYgeneClient.exe with the SHA-256 in SHA256.txt before running.
+Keep Windows Defender enabled. Do not bypass a malware alert.
+If it crashes or behaves unexpectedly, close it and start your
+unchanged original rustnarok-client.exe instead.
+
+Open-source attribution and license details are in MYgene_CREDITS.txt
+and the accompanying LICENSE-MIT and LICENSE-APACHE files.
