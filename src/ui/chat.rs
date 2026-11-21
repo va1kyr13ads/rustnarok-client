@@ -3098,10 +3098,11 @@ mod tests {
         chat.mode_icon = Some(false);
         assert_eq!(chat.hit([300.0, screen()[1] - 12.0]), Some(Hit::Message));
         assert_eq!(chat.hit([103.0, screen()[1] - 12.0]), Some(Hit::Strip));
-        // The input bar alone (step 0): only its top pixel and bottom three, outside y 1 to 20.
+        // The input bar alone (step 0): the closed input's message field remains
+        // clickable to resume typing, while the unused pixels retain the normal strip hit.
         chat.size = 0;
         let rows = [0.0, 1.0, 12.0, 20.0, 21.0, 23.0].map(|y| chat.hit([300.0, screen()[1] - 24.0 + y]));
-        assert_eq!(rows, [Some(Hit::Strip), Some(Hit::TopRow), Some(Hit::TopRow), Some(Hit::TopRow), Some(Hit::Strip), Some(Hit::Strip)]);
+        assert_eq!(rows, [Some(Hit::Strip), Some(Hit::TopRow), Some(Hit::Message), Some(Hit::TopRow), Some(Hit::Strip), Some(Hit::Strip)]);
         chat.size = DEFAULT_STEP;
         chat.mode_icon = None;
         // Locked it is held (and fades) but stays.
