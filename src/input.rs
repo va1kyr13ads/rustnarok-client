@@ -1832,8 +1832,14 @@ impl App {
             // A click on the chat window: the battle-mode icon opens or closes the line (the focus stays); the rest
             // focuses the boxes but doesn't open the line.
             Scene::Game(game) if on(Top::Chat) => {
-                if game.chat.hit(cursor) == Some(chat::Hit::ModeIcon) {
+                let hit = game.chat.hit(cursor);
+                if hit == Some(chat::Hit::ModeIcon) {
                     game.chat_mode.toggle_line();
+                    game.chat.mode_icon = game.chat_mode.icon();
+                } else if hit == Some(chat::Hit::Message) && !game.chat_mode.chat_line_open() {
+                    // MYgene: a click on the translucent input strip starts typing.
+                    game.chat_mode.toggle_line();
+                    game.chat.reopened();
                     game.chat.mode_icon = game.chat_mode.icon();
                 } else {
                     let said = game.chat.click(cursor);
@@ -3799,7 +3805,7 @@ impl App {
         let Scene::Game(game) = &mut self.scene else { return };
         match act {
             Some(escape::EscAct::CloseBattleChat) => {
-                game.chat.close_battle_line();
+                game.chat.cancel_battle_line();
                 game.chat_mode.close_line();
             }
             Some(escape::EscAct::Close(id)) => game.close_esc(id),
@@ -4651,7 +4657,18 @@ impl App {
                                     let said = game.chat.finish_rename(&|text| self.font.width(text));
                                     game.chat_said(said, &self.messages);
                                 }
-                                Key::Named(NamedKey::Enter) if typing => self.send_chat_input(self.modifiers.control_key(), self.modifiers.alt_key()),
+                                Key::Named(NamedKey::Enter) if typing => {
+                                    self.send_chat_input(self.modifiers.control_key(), self.modifiers.alt_key());
+                                    // Enter sends and returns to gameplay only after the draft was consumed.
+                                    // Macro sends and rename dialogs do not use this path.
+                                    if let Scene::Game(game) = &mut self.scene
+                                        && game.chat_mode.enabled()
+                                        && game.chat.input.is_empty()
+                                    {
+                                        game.chat_mode.sent_line();
+                                        game.chat.close_battle_line();
+                                    }
+                                },
                                 Key::Named(NamedKey::Backspace) if typing => game.chat.backspace(),
                                 _ if typing && !self.modifiers.alt_key() && !self.modifiers.super_key() && !self.modifiers.control_key() => {
                                     let typed: String = event.text.as_deref().unwrap_or_default().chars().filter(|character| !character.is_control()).collect();
