@@ -5284,7 +5284,7 @@ impl ApplicationHandler<NetEvent> for App {
             Some(LogicalSize::new(width.parse().ok()?, height.parse().ok()?))
         });
         let attributes = Window::default_attributes()
-            .with_title("Ragnarok")
+            .with_title("MYgene Client")
             .with_inner_size(size.unwrap_or(LogicalSize::new(1024.0, 768.0)))
             .with_min_inner_size(LogicalSize::new(512.0, 384.0))
             .with_fullscreen(self.graphics.fullscreen.then_some(winit::window::Fullscreen::Borderless(None)));
