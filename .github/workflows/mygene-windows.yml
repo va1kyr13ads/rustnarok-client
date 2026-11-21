@@ -1,0 +1,45 @@
+name: MYgene Windows Client
+
+on:
+  push:
+    branches:
+      - mygene-enter-chat
+    paths:
+      - "src/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/mygene-windows.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Check out client source
+        uses: actions/checkout@v4
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cache Rust build
+        uses: Swatinem/rust-cache@v2
+      - name: Run tests
+        run: cargo test --locked
+      - name: Build MYgene Windows client
+        run: cargo build --locked --release --bin rustnarok-client
+      - name: Prepare executable and checksum
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Copy-Item -LiteralPath "target/release/rustnarok-client.exe" -Destination "dist/rustnarok-client.exe"
+          Copy-Item -LiteralPath "LICENSE-MIT" -Destination dist
+          Copy-Item -LiteralPath "LICENSE-APACHE" -Destination dist
+          $hash = (Get-FileHash -LiteralPath "dist/rustnarok-client.exe" -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -LiteralPath "dist/SHA256.txt" -Value "$hash  rustnarok-client.exe" -Encoding ascii
+      - name: Upload Windows client artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MYgene-Rustnarok-Windows
+          path: dist/*
+          if-no-files-found: error
