@@ -3092,10 +3092,12 @@ mod tests {
         chat.drag_to([-900.0, -500.0]);
         chat.drop_drag();
         assert_eq!(chat.corner(), [-560.0, chat.height()]);
-        // With battle mode's line closed the boxes are gone: all of the bar grabs.
+        // MYgene's closed chat line has a clickable faded message field while
+        // the surrounding gaps are still available for dragging the window.
         chat.corner = None;
         chat.mode_icon = Some(false);
-        assert_eq!(chat.hit([300.0, screen()[1] - 12.0]), Some(Hit::Strip));
+        assert_eq!(chat.hit([300.0, screen()[1] - 12.0]), Some(Hit::Message));
+        assert_eq!(chat.hit([103.0, screen()[1] - 12.0]), Some(Hit::Strip));
         // The input bar alone (step 0): only its top pixel and bottom three, outside y 1 to 20.
         chat.size = 0;
         let rows = [0.0, 1.0, 12.0, 20.0, 21.0, 23.0].map(|y| chat.hit([300.0, screen()[1] - 24.0 + y]));
