@@ -1168,7 +1168,55 @@ impl ItemInfo {
 pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     let own = run(grf, &[ITEM_INFO]).and_then(|lua| items_in(&lua));
     let translated = TRANSLATED_ITEM_INFO.iter().find_map(|path| run_loader(&|file| grf.read(file), path).and_then(|lua| items_in(&lua)).ok());
-    layered(own, translated)
+    let mut items = layered(own, translated)?;
+
+    // MYgene custom equipment metadata. The borrowed resource names use
+    // existing Knife/Fabre Card/Concentration Potion art in the user's GRF.
+    // The server owns item logic; this adds accurate names, tooltips, and slots.
+    let knife = items.get(&1201).cloned().unwrap_or_default();
+    items.insert(
+        31001,
+        ItemInfo {
+            name: "Fabre Slayer Knife".into(),
+            unidentified_name: "Dagger".into(),
+            slots: 1,
+            description: vec![
+                "MYgene exclusive: 50% chance to instantly defeat Fabre-family monsters with a normal hit.".into(),
+                "Fabre, Pupa, Creamy, and Yellow Fabre.".into(),
+                "Compound a Yellow Fabre Card in its one slot to raise the chance to 90%.".into(),
+            ],
+            ..knife
+        },
+    );
+    let fabre_card = items.get(&4002).cloned().unwrap_or_default();
+    items.insert(
+        31002,
+        ItemInfo {
+            name: "Yellow Fabre Card".into(),
+            unidentified_name: "Card".into(),
+            slots: 0,
+            description: vec![
+                "MYgene exclusive: when compounded in a Fabre Slayer Knife,".into(),
+                "its Fabre-family instant-defeat chance increases from 50% to 90%.".into(),
+            ],
+            ..fabre_card
+        },
+    );
+    let potion = items.get(&645).cloned().unwrap_or_default();
+    items.insert(
+        31003,
+        ItemInfo {
+            name: "Attraction Potion".into(),
+            unidentified_name: "Potion".into(),
+            description: vec![
+                "For 5 minutes, nearby passive monsters on field maps".into(),
+                "have a 70% chance per AI search to become aggressive toward you.".into(),
+                "Does not affect bosses, towns, dungeons, or PvP maps.".into(),
+            ],
+            ..potion
+        },
+    );
+    Ok(items)
 }
 
 /// Runs a Lua file that loads others the way the game runs it from its folder: its `dofile` and `require` read through
