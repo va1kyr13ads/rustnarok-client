@@ -2,6 +2,18 @@
 
 <img src="assets/icon.png" width="128" alt="rustnarok-client">
 
+# MYgene Client
+
+**MYgene-branded Windows client — customized fork of [Rustnarok Client](https://github.com/kindraywind/rustnarok-client).**
+
+The player-facing Windows executable is named `MYgeneClient.exe`; its window title is **MYgene Client**. The original Rustnarok Client source code and contributors remain credited under the MIT / Apache-2.0 open-source licenses. See [MYgene_CREDITS.txt](MYgene_CREDITS.txt) and the original license files for details. This fork is not an official Gravity / Ragnarok Online client and does not redistribute proprietary game assets.
+
+For Windows build and installation instructions, see [MYgene chat controls](docs/MYGENE_CHAT_CONTROLS.md).
+
+---
+
+## Original project documentation
+
 # rustnarok-client
 
 **A native, multi-platform Ragnarok Online client for Windows, macOS and Linux, written from scratch in Rust.**
