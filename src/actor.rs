@@ -868,6 +868,8 @@ pub struct SpriteSet {
     scale: f32,
     /// Status colour multiplied into every layer. None keeps each layer's own colour.
     tint: Option<[u8; 3]>,
+    /// MYgene-only: recolor base Fabre green pixels to yellow at decode time.
+    mygene_yellow_fabre: bool,
     textures: HashMap<ImageKey, Texture>,
     /// A mounted rider's body without the mount, when a headgear sits by it.
     unmounted: Option<Act>,
@@ -1053,6 +1055,7 @@ impl SpriteSet {
             dressing: Some(dressing),
             scale: body_scale(job),
             tint: None,
+            mygene_yellow_fabre: false,
             textures: HashMap::new(),
             unmounted,
             delay: Default::default(),
@@ -1087,6 +1090,7 @@ impl SpriteSet {
             dressing: None,
             scale: 1.0,
             tint: None,
+            mygene_yellow_fabre: false,
             textures: HashMap::new(),
             unmounted: None,
             delay: Default::default(),
@@ -1124,10 +1128,18 @@ impl SpriteSet {
             dressing: None,
             scale: 1.0,
             tint: None,
+            mygene_yellow_fabre: false,
             textures: HashMap::new(),
             unmounted: None,
             delay: Default::default(),
         })
+    }
+
+    /// Recolor only MYgene's new Yellow Fabre while reusing the original
+    /// Fabre animation and sprites from the player's authorized game data.
+    pub fn make_yellow_fabre(&mut self) {
+        self.mygene_yellow_fabre = true;
+        self.textures.clear();
     }
 
     /// Colours every layer from here on. None clears the status colour.
@@ -1191,6 +1203,18 @@ impl SpriteSet {
         }
         let layer = &self.layers[key.0];
         let Some(mut image) = layer.spr.image(key.1, key.2, layer.palette.as_ref()) else { return };
+        if self.mygene_yellow_fabre {
+            // Bright green Fabre armor becomes golden yellow; whites, shadows
+            // and transparent edges are left intact.
+            for pixel in image.pixels_mut() {
+                let [r, g, b, alpha] = pixel.0;
+                if alpha != 0 && g > r.saturating_add(8) && g > b.saturating_add(8) {
+                    pixel.0[0] = g;
+                    pixel.0[1] = (u16::from(g) * 235 / 255) as u8;
+                    pixel.0[2] = b / 2;
+                }
+            }
+        }
         if key.3 != [255; 4] {
             for pixel in image.pixels_mut() {
                 for (channel, tint) in pixel.0.iter_mut().zip(key.3) {
@@ -4527,6 +4551,7 @@ mod tests {
             dressing: None,
             scale: 1.0,
             tint: None,
+            mygene_yellow_fabre: false,
             textures: HashMap::new(),
             unmounted: None,
             delay: Default::default(),
@@ -4815,6 +4840,7 @@ mod tests {
             dressing: None,
             scale: 1.0,
             tint: None,
+            mygene_yellow_fabre: false,
             textures: HashMap::new(),
             unmounted: None,
             delay: Default::default(),
@@ -4897,6 +4923,7 @@ mod tests {
             dressing: Some(dressing),
             scale: 1.0,
             tint: None,
+            mygene_yellow_fabre: false,
             textures: HashMap::new(),
             unmounted,
             delay: Default::default(),
