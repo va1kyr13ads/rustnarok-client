@@ -3012,7 +3012,7 @@ impl App {
         let click = game.world_click(cursor, shift);
         // A ground, item or NPC click clears the previous monster lock.
         // Attack clicks set a new lock only when the attack can actually begin.
-        if !matches!(click, WorldClick::Attack(_)) && !double {
+        if !matches!(&click, WorldClick::Attack(_)) && !double {
             game.marked_monster = None;
         }
         let (ends_attack, drops_pending) = press_ends(&click, double);
