@@ -5,6 +5,7 @@ on:
     branches:
       - mygene-enter-chat
       - feature/yellow-fabre
+      - feature/blue-chon-chon-slayer-20261123
     paths:
       - "src/**"
       - "Cargo.toml"
