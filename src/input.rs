@@ -3010,6 +3010,11 @@ impl App {
         }
         // One pending action at a time (`press_ends`).
         let click = game.world_click(cursor, shift);
+        // A ground, item or NPC click clears the previous monster lock.
+        // Attack clicks set a new lock only when the attack can actually begin.
+        if !matches!(click, WorldClick::Attack(_)) && !double {
+            game.marked_monster = None;
+        }
         let (ends_attack, drops_pending) = press_ends(&click, double);
         if ends_attack {
             game.attack = None;
@@ -3042,6 +3047,7 @@ impl App {
                 match attack_refused(weight(net::STATUS_WEIGHT), weight(net::STATUS_MAX_WEIGHT), game.riding) {
                     Some(line) => game.chat_line(self.messages.get(line).cloned().unwrap_or_default(), CHAT_ERROR),
                     None => {
+                        game.marked_monster = game.units.get(&id).filter(|actor| actor.kind == MONSTER).map(|_| id);
                         game.attack = Some(game.new_attack(id, ctrl || game.no_ctrl || homunculus));
                         game.attack_step(now);
                     }
