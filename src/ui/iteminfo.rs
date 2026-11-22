@@ -424,6 +424,12 @@ pub struct ItemWindow {
 
 /// The picture of an item (data\texture\유저인터페이스\collection\).
 pub fn picture_path(info: &ItemInfo, identified: bool) -> String {
+    // The Red Thief Bug Card uses the *stock* Thief Bug Card inventory
+    // icon, but its large description illustration is unique.
+    // Keep icon and collection-art paths independent.
+    if info.name == "Red Thief Bug Card" {
+        return format!("{UI}collection\\MYGENE_RED_THIEF_BUG_CARD.bmp");
+    }
     format!("{UI}collection\\{}.bmp", info.resource(identified))
 }
 
