@@ -770,11 +770,17 @@ impl CardPictures {
         // the original Fabre Card rather than a missing image or unrelated card.
         let custom = grf.contains(&cardbmp_path("mygene_yellow_fabre_card"));
         pictures.map_yellow_fabre(custom);
-        // Red Thief Bug Card reuses the usual card illustration route when
-        // no dedicated card BMP is installed yet. The generated inventory
-        // and collection illustrations live under the item resource name.
-        let red_custom = grf.contains(&cardbmp_path("mygene_red_thief_bug_card"));
-        pictures.map_red_thief_bug(red_custom);
+        // Use the approved full-size Red Thief Bug Card image when installed
+        // as an external MYgene overlay, or when already present in a GRF.
+        // This must use the same overlay lookup as render::load_image or the
+        // full card view would silently show the unrelated vanilla Thief Bug.
+        let red_path = cardbmp_path("mygene_red_thief_bug_card");
+        let installed_red = std::env::var_os("RUSTNAROK_CLIENT_DATA")
+            .map(std::path::PathBuf::from)
+            .or_else(|| std::env::current_exe().ok().and_then(|p| p.parent().map(std::path::Path::to_path_buf)))
+            .map(|root| root.join(red_path.replace('\\', "/")).is_file())
+            .unwrap_or(false);
+        pictures.map_red_thief_bug(installed_red || grf.contains(&red_path));
         pictures
     }
 
