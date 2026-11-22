@@ -1336,17 +1336,15 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
             ..sword
         },
     );
-    // MYgene custom-card convention: a dedicated card-shaped inventory
-    // icon, matching collection thumbnail, and separately mapped full-size
-    // cardbmp illustration. Never reuse an unrelated vanilla card graphic.
+    // Use the usual Ragnarok Thief Bug Card icon (4016) in inventory
+    // and item-description collection thumbnail. Only the full-size
+    // View cardbmp illustration is custom for Red Thief Bug Card.
     let bug_card = items.get(&4016).cloned().unwrap_or_default();
     items.insert(
         31007,
         ItemInfo {
             name: "Red Thief Bug Card".into(),
             unidentified_name: "Red Thief Bug Card".into(),
-            resource: "MYGENE_RED_THIEF_BUG_CARD".into(),
-            unidentified_resource: "MYGENE_RED_THIEF_BUG_CARD".into(),
             slots: 0,
             description: vec![
                 "MYgene Exclusive Card".into(),
