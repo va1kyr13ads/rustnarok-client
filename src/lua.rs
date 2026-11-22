@@ -1362,6 +1362,96 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
             ..bug_card
         },
     );
+    // MYgene Slayer Series #3: Chonchon Slayer Bow [1], Blue Chon Chon
+    // Card and the future GM-only Perfect variant. Borrow official Bow and
+    // Chonchon Card resources so a current GRF can display these immediately.
+    // The server battle.cpp owns all execution chance and boss filtering.
+    let chonchon_bow = items.get(&1701).cloned().unwrap_or_default();
+    items.insert(
+        31010,
+        ItemInfo {
+            name: "Chonchon Slayer Bow".into(),
+            unidentified_name: "Bow".into(),
+            slots: 1,
+            description: vec![
+                "MYgene Exclusive".into(),
+                "Chonchon Slayer Bow [1]".into(),
+                "".into(),
+                "ATK: 17".into(),
+                "Weapon Level: 1".into(),
+                "Required Level: 4".into(),
+                "Weight: 40".into(),
+                "Range: 5 (Bow)".into(),
+                "Two-handed, cannot refine.".into(),
+                "".into(),
+                "Effect".into(),
+                "50% chance to execute".into(),
+                "Chonchon family with a".into(),
+                "successful normal bow hit.".into(),
+                "".into(),
+                "Targets".into(),
+                "Chonchon, Steel Chonchon,".into(),
+                "Hunter Fly, Blue Chon Chon.".into(),
+                "No mini-bosses, elites, MVPs.".into(),
+                "".into(),
+                "Blue Chon Chon Card raises".into(),
+                "execution chance to 90%.".into(),
+            ],
+            ..chonchon_bow.clone()
+        },
+    );
+    items.insert(
+        31012,
+        ItemInfo {
+            name: "P.C.S.B".into(),
+            unidentified_name: "Bow".into(),
+            slots: 1,
+            description: vec![
+                "MYgene Exclusive".into(),
+                "Perfect Chonchon Slayer Bow".into(),
+                "World Relic (not a drop)".into(),
+                "".into(),
+                "ATK: 25 / Weapon Level: 4".into(),
+                "Required Level: 40".into(),
+                "Range: 5 / Weight: 100".into(),
+                "Two-handed; indestructible.".into(),
+                "Cannot be refined.".into(),
+                "".into(),
+                "Effect".into(),
+                "90% execution chance on".into(),
+                "successful normal bow hits".into(),
+                "against Chonchon family.".into(),
+                "Requires Blue Chon Chon Card.".into(),
+                "No mini-boss, elite or MVP.".into(),
+                "World lease not yet live.".into(),
+            ],
+            ..chonchon_bow
+        },
+    );
+    let chonchon_card = items.get(&4009).cloned().unwrap_or_default();
+    items.insert(
+        31011,
+        ItemInfo {
+            name: "Blue Chon Chon Card".into(),
+            unidentified_name: "Blue Chon Chon Card".into(),
+            slots: 0,
+            description: vec![
+                "MYgene Exclusive Card".into(),
+                "Blue Chon Chon essence.".into(),
+                "".into(),
+                "Compound in Chonchon Slayer".into(),
+                "Bow [1] to raise execution".into(),
+                "chance from 50% to 90%.".into(),
+                "Normal bow hits only.".into(),
+                "Chonchon, Steel Chonchon,".into(),
+                "Hunter Fly, Blue Chon Chon.".into(),
+                "Excludes mini-bosses,".into(),
+                "elites, bosses and MVPs.".into(),
+                "Perfect relic not a drop.".into(),
+            ],
+            ..chonchon_card
+        },
+    );
     let potion = items.get(&645).cloned().unwrap_or_default();
     items.insert(
         31003,
