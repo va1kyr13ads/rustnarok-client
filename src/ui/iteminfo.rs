@@ -307,6 +307,39 @@ pub fn cut(line: &str, columns: usize, color: &mut [u8; 3]) -> ColoredLines {
     lines
 }
 
+/// Wrap ordinary English prose on word boundaries. Legacy coloured / Korean
+/// descriptions retain their byte-aware splitter, which also parses ^RRGGBB.
+fn cut_description(line: &str, columns: usize, color: &mut [u8; 3]) -> ColoredLines {
+    if !line.is_ascii() || line.contains('^') || line.contains('\n') || line.contains('\r') {
+        return cut(line, columns, color);
+    }
+    if line.trim().is_empty() { return cut(line, columns, color); }
+
+    let mut wrapped = Vec::<String>::new();
+    let mut current = String::new();
+    for word in line.split_whitespace() {
+        if current.is_empty() {
+            current.push_str(word);
+        } else if current.len() + 1 + word.len() <= columns {
+            current.push(' ');
+            current.push_str(word);
+        } else {
+            wrapped.push(std::mem::take(&mut current));
+            current.push_str(word);
+        }
+        if current.len() > columns {
+            let pieces = cut(&current, columns, color);
+            let last = pieces.len().saturating_sub(1);
+            for row in &pieces[..last] {
+                wrapped.push(row.iter().map(|(_, part)| part.as_str()).collect());
+            }
+            current = pieces[last].iter().map(|(_, part)| part.as_str()).collect();
+        }
+    }
+    if !current.is_empty() { wrapped.push(current); }
+    wrapped.into_iter().flat_map(|text| cut(&text, columns, color)).collect()
+}
+
 /// The window's height for `lines` of text, with the card strip or not.
 pub fn fitted_height(lines: usize, strip: bool) -> f32 {
     let extra = lines.saturating_sub(BASE_LINES) as f32 * LINE;
@@ -597,11 +630,11 @@ impl ItemWindow {
                 "Visit World Relic Keeper",
                 "for Perfect Lv. 40 form.",
             ] {
-                lines.extend(cut(line, LINE_COLUMNS, &mut color));
+                lines.extend(cut_description(line, LINE_COLUMNS, &mut color));
             }
         } else {
             for line in info.description(self.shown.identified) {
-                lines.extend(cut(line, LINE_COLUMNS, &mut color));
+                lines.extend(cut_description(line, LINE_COLUMNS, &mut color));
             }
         }
         lines
@@ -1041,6 +1074,16 @@ mod tests {
         // A Korean character takes two and isn't split; "\r\n" breaks.
         assert_eq!(text(cut(&format!("{}가나", "a".repeat(23)), 26, &mut color)), [format!("{}가", "a".repeat(23)), "나".to_owned()]);
         assert_eq!(text(cut("one\r\ntwo", 26, &mut color)), ["one", "two"]);
+    }
+
+    #[test]
+    fn english_item_text_wraps_at_word_boundaries() {
+        let plain = |lines: ColoredLines| lines.iter().map(|row| row.iter().map(|(_, part)| part.as_str()).collect::<String>()).collect::<Vec<_>>();
+        let mut color = [0, 0, 0];
+        assert_eq!(plain(cut_description("A simple, sturdily made shirt of cotton.", 23, &mut color)),
+            ["A simple, sturdily", "made shirt of cotton."]);
+        assert_eq!(plain(cut_description("Supercalifragilistic", 8, &mut color)),
+            ["Supercal", "ifragili", "stic"]);
     }
 
     #[test]
