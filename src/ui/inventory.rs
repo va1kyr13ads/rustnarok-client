@@ -326,6 +326,7 @@ pub struct Inventory {
     /// The inventory's height, as snapped, and its tabs' height.
     inventory_height: f32,
     tab_height: f32,
+    horizontal_tabs: bool,
 }
 
 impl Default for Inventory {
@@ -350,6 +351,7 @@ impl Default for Inventory {
             is_cart: false,
             inventory_height: INVENTORY_SIZE[1],
             tab_height: DEFAULT_TAB_HEIGHT,
+            horizontal_tabs: false,
         }
         .resized(INVENTORY_SIZE)
     }
@@ -600,10 +602,12 @@ impl Inventory {
         cart
     }
 
-    /// The tabs' height from their labels, written down one character under the other.
+    /// Short English labels use a horizontal row; other languages retain the old strip.
     pub fn set_tab_labels(&mut self, messages: &[String], font: &Font) {
+        self.horizontal_tabs = TAB_LABELS.iter().map(|&id| messages.get(id).map_or("", String::as_str))
+            .eq(["Use", "Gear", "Etc", "Fav"]);
         let longest = TAB_LABELS.iter().map(|&id| messages.get(id).map_or(0, |label| label.chars().count())).max().unwrap_or(0);
-        self.tab_height = longest as f32 * font.line_height() + TAB_PADDING;
+        self.tab_height = if self.horizontal_tabs { 22.0 } else { longest as f32 * font.line_height() + TAB_PADDING };
         self.set_size(self.size());
     }
 
@@ -614,8 +618,8 @@ impl Inventory {
     }
 
     fn resize_inventory(&mut self, [width, height]: [f32; 2]) {
-        let size = [snap_width(width), snap_height(height, strip_height(self.tab_height))];
-        [self.columns, self.rows] = cells_of(size);
+        let size = [snap_width(width), snap_height(height, if self.horizontal_tabs { self.tab_height } else { strip_height(self.tab_height) })];
+        [self.columns, self.rows] = cells_of(if self.horizontal_tabs { [size[0], size[1] - self.tab_height] } else { size });
         self.inventory_height = size[1];
         self.frame.set_width(size[0]);
         self.scroll_by(0);
@@ -731,7 +735,7 @@ impl Inventory {
 
     /// The inventory's tabs, footer controls and cells (the cart goes by the older layout).
     fn inventory_hit(&self, local: [f32; 2]) -> Hit {
-        if let Some(tab) = (0..TABS).find(|&tab| contains(self.tab_corner(tab), [STRIP_WIDTH, self.tab_height], local)) {
+        if let Some(tab) = (0..TABS).find(|&tab| contains(self.tab_corner(tab), self.tab_size(), local)) {
             return Hit::Tab(tab);
         }
         if let Some((_, hit)) = self.footer_controls().into_iter().find(|(area, _)| contains([area[0], area[1]], [area[2], area[3]], local)) {
@@ -743,9 +747,15 @@ impl Inventory {
         }
     }
 
-    /// A tab's corner in the strip: neighbours share a border line.
+    fn tab_size(&self) -> [f32; 2] {
+        if self.horizontal_tabs { [(self.width() - 6.0) / TABS as f32, self.tab_height] }
+        else { [STRIP_WIDTH, self.tab_height] }
+    }
+
+    /// Shared tab coordinates for drawing, hit testing and test automation.
     fn tab_corner(&self, tab: usize) -> [f32; 2] {
-        [STRIP_AT[0], STRIP_AT[1] + tab as f32 * (self.tab_height - 1.0)]
+        if self.horizontal_tabs { [3.0 + tab as f32 * self.tab_size()[0], TITLE_HEIGHT] }
+        else { [STRIP_AT[0], STRIP_AT[1] + tab as f32 * (self.tab_height - 1.0)] }
     }
 
     /// The footer's icons, window-local: expand, the drop lock, compare.
@@ -800,7 +810,7 @@ impl Inventory {
 
     /// The first cell's corner.
     fn grid(&self) -> [f32; 2] {
-        if self.is_cart { GRID } else { CELLS_AT }
+        if self.is_cart { GRID } else if self.horizontal_tabs { [CELLS_AT[0], CELLS_AT[1] + self.tab_height] } else { CELLS_AT }
     }
 
     /// Rows of cells plus 8px above and 10px below them; the tab strip is exactly this tall.
@@ -821,7 +831,7 @@ impl Inventory {
     /// Takes `columns` and `rows` as far as the grip would go; the items reflow.
     pub fn set_size(&mut self, [columns, rows]: [usize; 2]) {
         if !self.is_cart {
-            return self.resize_inventory([CELLS_AT[0] + columns as f32 * CELL + CELLS_RIGHT, CHROME_HEIGHT + rows as f32 * CELL]);
+            return self.resize_inventory([CELLS_AT[0] + columns as f32 * CELL + CELLS_RIGHT, CHROME_HEIGHT + rows as f32 * CELL + if self.horizontal_tabs { self.tab_height } else { 0.0 }]);
         }
         self.columns = columns.clamp(*COLUMN_LIMITS.start(), *COLUMN_LIMITS.end());
         self.rows = rows.clamp(*self.row_limits.start(), *self.row_limits.end());
@@ -873,7 +883,7 @@ impl Inventory {
                 .enumerate()
                 .map(|(tab, name)| {
                     let [x, y] = self.frame.at(self.tab_corner(tab));
-                    (name, [x, y, STRIP_WIDTH, self.tab_height])
+                    (name, [x, y, self.tab_size()[0], self.tab_size()[1]])
                 })
                 .collect();
         }
@@ -1074,24 +1084,39 @@ impl Inventory {
             }
             layer.sprites.push((right, at([width - right.size[0], y]), right.size));
         }
-        // The tabs, top to bottom: white with a grey border, all but the open one closed on the cells' side; the label
-        // one character under the other.
-        // ponytail: each label centred across its tab, from 5 px down.
-        for (tab, &label) in TAB_LABELS.iter().enumerate() {
-            let [x, y] = self.tab_corner(tab);
-            layer.sprites.push((&assets.tab_border, at([x, y]), [STRIP_WIDTH, self.tab_height]));
-            let inner_right = if tab == self.tab { STRIP_WIDTH - 1.0 } else { STRIP_WIDTH - 2.0 };
-            layer.sprites.push((&chrome.white, at([x + 1.0, y + 1.0]), [inner_right, self.tab_height - 2.0]));
-            let label = messages.get(label).map_or("", String::as_str);
-            for (row, character) in label.chars().enumerate() {
-                let text = character.to_string();
-                let left = x + ((STRIP_WIDTH - font.width(&text)) / 2.0).floor();
-                layer.texts.push((text, at([left, y + TAB_PADDING / 2.0 + row as f32 * font.line_height()]), [0, 0, 0]));
+        if self.horizontal_tabs {
+            layer.sprites.push((&chrome.white, at([0.0, TITLE_HEIGHT]), [width, self.tab_height]));
+            for (tab, &id) in TAB_LABELS.iter().enumerate() {
+                let [x, y] = self.tab_corner(tab);
+                let [w, h] = self.tab_size();
+                layer.sprites.push((&assets.tab_border, at([x, y]), [w, h]));
+                layer.sprites.push((&chrome.white, at([x + 1.0, y + 1.0]), [w - 2.0, h - 2.0]));
+                let label = messages.get(id).map_or("", String::as_str);
+                let left = x + ((w - font.width(label)) / 2.0).max(2.0);
+                layer.texts.push((label.to_owned(), at([left, y + 4.0]), [0, 0, 0]));
+                if tab == self.tab {
+                    layer.sprites.push((&assets.strip_line, at([x + 1.0, y + h - 2.0]), [w - 2.0, 2.0]));
+                }
             }
+            layer.sprites.push((&chrome.white, at([0.0, TITLE_HEIGHT + self.tab_height]), [CELLS_AT[0], body]));
+        } else {
+            // Original vertical layout remains available for legacy translations.
+            for (tab, &id) in TAB_LABELS.iter().enumerate() {
+                let [x, y] = self.tab_corner(tab);
+                layer.sprites.push((&assets.tab_border, at([x, y]), [STRIP_WIDTH, self.tab_height]));
+                let inner_right = if tab == self.tab { STRIP_WIDTH - 1.0 } else { STRIP_WIDTH - 2.0 };
+                layer.sprites.push((&chrome.white, at([x + 1.0, y + 1.0]), [inner_right, self.tab_height - 2.0]));
+                let label = messages.get(id).map_or("", String::as_str);
+                for (row, character) in label.chars().enumerate() {
+                    let text = character.to_string();
+                    let left = x + ((STRIP_WIDTH - font.width(&text)) / 2.0).floor();
+                    layer.texts.push((text, at([left, y + TAB_PADDING / 2.0 + row as f32 * font.line_height()]), [0, 0, 0]));
+                }
+            }
+            layer.sprites.push((&assets.strip_line, at([STRIP_LINE_X, TITLE_HEIGHT]), [1.0, body]));
+            layer.sprites.push((&chrome.white, at([STRIP_LINE_X, TITLE_HEIGHT]), [CELLS_AT[0] - STRIP_LINE_X, body]));
         }
-        layer.sprites.push((&assets.strip_line, at([STRIP_LINE_X, TITLE_HEIGHT]), [1.0, body]));
-        layer.sprites.push((&chrome.white, at([STRIP_LINE_X, TITLE_HEIGHT]), [CELLS_AT[0] - STRIP_LINE_X, body]));
-        let below = TITLE_HEIGHT + self.rows as f32 * CELL;
+        let below = self.grid()[1] + self.rows as f32 * CELL;
         layer.sprites.push((&chrome.white, at([STRIP_LINE_X, below]), [width - 24.0, height - INVENTORY_FOOTER - below]));
     }
 
@@ -1201,6 +1226,19 @@ mod tests {
         cart.set_size([8, 5]);
         assert_eq!(cart.scroll, 0);
         assert_eq!(cart.width(), width(8));
+    }
+
+    #[test]
+    fn english_tabs_are_horizontal_and_clickable() {
+        let mut inventory = Inventory::new(true);
+        inventory.horizontal_tabs = true;
+        inventory.tab_height = 22.0;
+        inventory.set_size([7, 6]);
+        assert_eq!(inventory.grid(), [40.0, TITLE_HEIGHT + 22.0]);
+        for tab in 0..4 {
+            let [x, y] = inventory.tab_corner(tab);
+            assert_eq!(inventory.hit(inventory.frame.at([x + 5.0, y + 5.0])), Some(Hit::Tab(tab)));
+        }
     }
 
     #[test]
