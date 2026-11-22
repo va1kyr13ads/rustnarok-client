@@ -570,6 +570,7 @@ impl App {
                     skill_fail: settings_path("skillfail").and_then(|path| std::fs::read_to_string(path).ok()).is_none_or(|text| text.trim() != "0"),
                     snaps: Snaps::load(),
                     cursor_at: [-1.0; 2],
+                    marked_monster: None,
                     attack: None,
                     last_attack: None,
                     attack_was: None,
