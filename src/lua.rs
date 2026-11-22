@@ -1179,6 +1179,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
         ItemInfo {
             name: "Fabre Slayer Knife".into(),
             unidentified_name: "Dagger".into(),
+            resource: "MYGENE_FABRE_SLAYER".into(),
             slots: 1,
             description: vec![
                 "MYgene Exclusive".into(),
@@ -1211,6 +1212,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
         ItemInfo {
             name: "Perfect Fabre Slayer Knife".into(),
             unidentified_name: "Dagger".into(),
+            resource: "MYGENE_PERFECT_FABRE_SLAYER".into(),
             slots: 1,
             description: vec![
                 "MYgene Exclusive".into(),
