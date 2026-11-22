@@ -764,6 +764,11 @@ impl CardPictures {
         // the original Fabre Card rather than a missing image or unrelated card.
         let custom = grf.contains(&cardbmp_path("mygene_yellow_fabre_card"));
         pictures.map_yellow_fabre(custom);
+        // Red Thief Bug Card reuses the usual card illustration route when
+        // no dedicated card BMP is installed yet. The generated inventory
+        // and collection illustrations live under the item resource name.
+        let red_custom = grf.contains(&cardbmp_path("mygene_red_thief_bug_card"));
+        pictures.map_red_thief_bug(red_custom);
         pictures
     }
 
@@ -775,6 +780,19 @@ impl CardPictures {
         };
         if let Some(name) = name {
             self.names.insert(31002, vec![name]);
+        }
+    }
+
+    fn map_red_thief_bug(&mut self, has_custom_art: bool) {
+        let name = if has_custom_art {
+            Some("mygene_red_thief_bug_card".to_owned())
+        } else {
+            // Vanilla Thief Bug Card artwork is an acceptable readable
+            // fallback until the dedicated red card BMP is supplied.
+            self.name(4004).map(str::to_owned)
+        };
+        if let Some(name) = name {
+            self.names.insert(31007, vec![name]);
         }
     }
 
