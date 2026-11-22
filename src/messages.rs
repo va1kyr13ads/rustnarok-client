@@ -31,6 +31,29 @@ pub fn load(grf: &Grf) -> io::Result<Vec<String>> {
 /// still holds Korean lines in UTF-8 and the csv is there: then it is a stale half-translated copy and the csv is the
 /// table (a Thai server ships both, the txt with untranslated login labels, the csv translated in full).
 // ponytail: a translation with even one Korean UTF-8 line gives way to the csv entirely; merge per line if one does.
+/// MYgene's English interface foundation: only known message IDs are replaced.
+/// All other translations continue to come from the player's GRF/loose overlay.
+/// This does not alter filenames, network protocol, or codepages.
+pub fn apply_mygene_english(messages: &mut Vec<String>) {
+    const ENGLISH: &[(usize, &str)] = &[
+        (INVENTORY, "Inventory"),
+        (GOT_ITEM, "Obtained %s x%d"),
+        (ITEM_AMOUNT, "%s : %d ea."),
+        (ITEM_OPTIONS_AMOUNT, "%s [%d Options] : %d ea."),
+        (ITEM_OPTIONS, "%s [%d Options]"),
+        (CANT_CARRY_WEIGHT, "You are carrying too much weight."),
+        (CANT_CARRY, "Cannot pick up this item."),
+        (1465, "Use"), (2050, "Gear"), (1471, "Etc"), (2051, "Fav"),
+        (1805, "General"), (2419, "Costume"), (2685, "Title"),
+        (1362, "Show Equipment"), (1358, "Hide Equipment"),
+        (1359, "Show Equipment"), (3955, "Unequip All"),
+    ];
+    for &(id, translated) in ENGLISH {
+        if messages.len() <= id { messages.resize(id + 1, String::new()); }
+        messages[id] = translated.to_owned();
+    }
+}
+
 fn tables(plain_table: Option<Vec<u8>>, csv: io::Result<Vec<u8>>, codepage: &'static encoding_rs::Encoding) -> io::Result<Vec<String>> {
     if let Some(bytes) = plain_table
         && (csv.is_err() || !korean_in_utf8(&bytes))
@@ -121,6 +144,24 @@ pub fn fill(template: &str, args: &[&dyn Display]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn mygene_english_overrides_known_labels_only() {
+        let mut messages = vec!["original".to_owned(); 4000];
+        messages[500] = "Preserved message".to_owned();
+        apply_mygene_english(&mut messages);
+        assert_eq!(messages[INVENTORY], "Inventory");
+        assert_eq!(messages[1465], "Use");
+        assert_eq!(fill(&messages[ITEM_AMOUNT], &[&"P.F.S.K", &1]), "P.F.S.K : 1 ea.");
+        assert_eq!(messages[500], "Preserved message");
+    }
+
+    #[test]
+    fn mygene_english_handles_short_tables() {
+        let mut messages = Vec::new();
+        apply_mygene_english(&mut messages);
+        assert_eq!(messages[2685], "Title");
+    }
 
     #[test]
     fn decodes_base64() {
