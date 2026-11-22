@@ -1336,16 +1336,17 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
             ..sword
         },
     );
-    // Keep one consistent custom resource for identified and unidentified
-    // Card 31007. Its bitmap is generated locally if the GRF lacks it.
+    // For inventory, borrow the stock Thief Bug Card (4016) icon from
+    // the player's existing GRF. The Red Thief Bug's separate full-size
+    // collection artwork is selected in ui/iteminfo.rs.
     let bug_card = items.get(&4016).cloned().unwrap_or_default();
     items.insert(
         31007,
         ItemInfo {
             name: "Red Thief Bug Card".into(),
             unidentified_name: "Red Thief Bug Card".into(),
-            resource: "MYGENE_RED_THIEF_BUG_CARD".into(),
-            unidentified_resource: "MYGENE_RED_THIEF_BUG_CARD".into(),
+            // Use the vanilla Thief Bug Card's installed icon resources.
+            // Do not replace them with a nonexistent custom inventory BMP.
             slots: 0,
             description: vec![
                 "MYgene Exclusive Card".into(),
