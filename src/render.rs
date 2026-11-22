@@ -517,9 +517,87 @@ impl Gpu {
 }
 
 /// A client image with its magenta background keyed out.
+/// Procedural fallback artwork for the MYgene Thief Bug weapon family.
+/// The player can override these with normal BMPs in their local data folder;
+/// no extra resources are needed for the built-in icons or collection pictures.
+fn mygene_thief_bug_art(path: &str) -> Option<RgbaImage> {
+    let normalized = path.replace('/', "\\").to_ascii_lowercase();
+    let item = normalized.contains("\\item\\");
+    let collection = normalized.contains("\\collection\\");
+    if !item && !collection { return None; }
+    let perfect = normalized.ends_with("mygene_perfect_thief_bug_slayer.bmp");
+    let ordinary = normalized.ends_with("mygene_thief_bug_slayer.bmp");
+    let card = normalized.ends_with("mygene_red_thief_bug_card.bmp");
+    if !perfect && !ordinary && !card { return None; }
+
+    let (w, h) = if item { (32u32, 32u32) } else { (75u32, 100u32) };
+    let mut art = RgbaImage::new(w, h);
+    let px = |art: &mut RgbaImage, x: i32, y: i32, color: [u8; 4]| {
+        if x >= 0 && y >= 0 && (x as u32) < w && (y as u32) < h {
+            art.put_pixel(x as u32, y as u32, image::Rgba(color));
+        }
+    };
+    // Pixel-art line drawing with a thick edge, glints and a colored aura.
+    let stroke = |art: &mut RgbaImage, x0: i32, y0: i32, x1: i32, y1: i32, thick: i32, color: [u8; 4]| {
+        let steps = (x1 - x0).abs().max((y1 - y0).abs()).max(1);
+        for i in 0..=steps {
+            let x = x0 + (x1 - x0) * i / steps;
+            let y = y0 + (y1 - y0) * i / steps;
+            for dy in -thick..=thick {
+                for dx in -thick..=thick {
+                    if dx * dx + dy * dy <= thick * thick + 1 {
+                        px(art, x + dx, y + dy, color);
+                    }
+                }
+            }
+        }
+    };
+    if card {
+        let dark = [78, 12, 23, 255];
+        let bright = [218, 44, 56, 255];
+        for y in h/6..h*5/6 {
+            for x in w/6..w*5/6 {
+                let edge = x == w/6 || x == w*5/6 - 1 || y == h/6 || y == h*5/6 - 1;
+                px(&mut art, x as i32, y as i32, if edge { bright } else { dark });
+            }
+        }
+        let cx = (w/2) as i32;
+        let cy = (h/2) as i32;
+        stroke(&mut art, cx-8, cy-3, cx+8, cy-3, if item {1}else{2}, [255, 135, 104, 255]);
+        stroke(&mut art, cx-7, cy-3, cx, cy+13, if item {1}else{3}, bright);
+        stroke(&mut art, cx+7, cy-3, cx, cy+13, if item {1}else{3}, bright);
+        px(&mut art, cx-3, cy+1, [255, 230, 146, 255]);
+        px(&mut art, cx+3, cy+1, [255, 230, 146, 255]);
+    } else {
+        // Slanted longsword with a dark-steel blade, gold crossguard and
+        // an emerald (normal) or crimson (Perfect relic) energy edge.
+        let sx = w as f32 / 32.0;
+        let sy = h as f32 / 40.0;
+        let point = |x: i32, y: i32| ((x as f32 * sx) as i32, (y as f32 * sy) as i32);
+        let (ax, ay) = point(5, 35);
+        let (bx, by) = point(26, 4);
+        let thick = if item { 2 } else { 4 };
+        let aura = if perfect { [255, 43, 69, 200] } else { [31, 228, 135, 200] };
+        let core = if perfect { [253, 191, 148, 255] } else { [174, 210, 206, 255] };
+        stroke(&mut art, ax, ay, bx, by, thick + 2, aura);
+        stroke(&mut art, ax, ay, bx, by, thick + 1, [35, 37, 47, 255]);
+        stroke(&mut art, ax, ay, bx, by, thick, [92, 116, 126, 255]);
+        stroke(&mut art, ax+2, ay-2, bx, by, 1, core);
+        let (gx, gy) = point(10, 28);
+        let (hx, hy) = point(18, 33);
+        stroke(&mut art, gx, gy, hx, hy, if item {1}else{3}, [237, 171, 71, 255]);
+        let (tx, ty) = point(4, 38);
+        stroke(&mut art, tx, ty, ax+1, ay-1, if item {1}else{2}, [87, 41, 32, 255]);
+        px(&mut art, tx, ty, [245, 202, 95, 255]);
+    }
+    Some(art)
+}
+
 pub fn load_image(grf: &Grf, path: &str) -> Result<RgbaImage, String> {
-    let bytes = grf.read(path).map_err(|error| format!("{path}: {error}"))?;
-    Ok(key_out(decode_image(path, &bytes).map_err(|error| format!("{path}: {error}"))?.to_rgba8()))
+    match grf.read(path) {
+        Ok(bytes) => Ok(key_out(decode_image(path, &bytes).map_err(|error| format!("{path}: {error}"))?.to_rgba8())),
+        Err(error) => mygene_thief_bug_art(path).ok_or_else(|| format!("{path}: {error}")),
+    }
 }
 
 /// Decodes an image file of the data by its contents, or, for TGA, which has no magic number to recognize it by, by
