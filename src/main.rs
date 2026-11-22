@@ -2201,6 +2201,21 @@ fn job_sprites(grf: &Grf, job_names: &HashMap<u16, String>, kind: u8, job: u16) 
         return Some(sprites);
     }
 
+    // MYgene Red Thief Bug (31051): use the full animated native Thief
+    // Bug sprite (1051), recolored crimson at decode time. This preserves
+    // walking, attack, hit and death actions from the player's own GRF.
+    if kind == MONSTER && job == 31051 {
+        if let Some(sprites) = SpriteSet::single(grf, "mygene_red_thief_bug", kind) {
+            return Some(sprites);
+        }
+        let mut sprites = job_names
+            .get(&1051)
+            .and_then(|name| SpriteSet::single(grf, name, kind))
+            .or_else(|| SpriteSet::single(grf, "thief_bug", kind))?;
+        sprites.make_red_thief_bug();
+        return Some(sprites);
+    }
+
     // All other monsters retain their original mappings.
     job_names
         .get(&job)
