@@ -271,7 +271,16 @@ impl Gpu {
         self.try_load_texture(grf, path, smooth).unwrap_or_else(|error| {
             let ui_path = path.replace('/', "\\").to_lowercase();
             if ui_path.starts_with("data\\texture\\유저인터페이스\\") {
-                eprintln!("MYgene UI texture missing (transparent fallback): {path}: {error}");
+                // A legacy GRF can lack hundreds of optional Ragnarok buttons
+                // and emblems. Keep useful examples without flooding PowerShell.
+                // MYGENE_VERBOSE_MISSING_UI=1 restores every individual warning.
+                static MISSING_UI_COUNT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+                let count = MISSING_UI_COUNT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                if count < 12 || std::env::var_os("MYGENE_VERBOSE_MISSING_UI").is_some() {
+                    eprintln!("MYgene UI texture missing (transparent fallback): {path}: {error}");
+                } else if count == 12 {
+                    eprintln!("MYgene: additional optional UI texture warnings suppressed; set MYGENE_VERBOSE_MISSING_UI=1 to see all paths");
+                }
                 self.solid([0, 0, 0, 0])
             } else {
                 panic!("{path}: {error}")
