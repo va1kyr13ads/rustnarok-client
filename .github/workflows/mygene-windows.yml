@@ -29,6 +29,10 @@ jobs:
         run: cargo test --locked
       - name: Build MYgene Windows client
         run: cargo build --locked --release --bin rustnarok-client
+      - name: Embed approved MYgene Windows application icon
+        shell: pwsh
+        run: |
+          ./scripts/embed-mygene-icon.ps1 -Executable "target/release/rustnarok-client.exe" -LogoBase64Path "assets/mygene-logo-64.png.base64"
       - name: Prepare executable and checksum
         shell: pwsh
         run: |
