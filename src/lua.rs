@@ -1368,7 +1368,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     // The server battle.cpp owns all execution chance and boss filtering.
     let chonchon_bow = items.get(&1701).cloned().unwrap_or_default();
     items.insert(
-        31010,
+        60010,
         ItemInfo {
             name: "Chonchon Slayer Bow".into(),
             unidentified_name: "Bow".into(),
@@ -1401,7 +1401,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
         },
     );
     items.insert(
-        31012,
+        60012,
         ItemInfo {
             name: "P.C.S.B".into(),
             unidentified_name: "Bow".into(),
@@ -1430,7 +1430,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     );
     let chonchon_card = items.get(&4009).cloned().unwrap_or_default();
     items.insert(
-        31011,
+        60011,
         ItemInfo {
             name: "Blue Chon Chon Card".into(),
             unidentified_name: "Blue Chon Chon Card".into(),
