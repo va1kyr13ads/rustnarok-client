@@ -152,14 +152,18 @@ pub struct Assets {
 
 impl Assets {
     pub fn load(gpu: &Gpu, grf: &Grf) -> Self {
-        let image = |name: &str| gpu.load_texture(grf, &format!("{UI}navigation_interface3\\{name}.bmp"), false);
+        // Older Ragnarok GRFs lack Navigation Interface 3 artwork. Navigation is
+        // optional for logging in, so absent button/background bitmaps must not
+        // crash the entire game at startup. Keep the normal image when present.
+        let optional_image = |path: String| gpu.try_load_texture(grf, &path, false).unwrap_or_else(|_| gpu.solid([0, 0, 0, 0]));
+        let image = |name: &str| optional_image(format!("{UI}navigation_interface3\\{name}.bmp"));
         Self {
             filter: ["bg_combo", "dropdown_on"].map(image),
             field: image("bg_search"),
             search: ["btn_searchbar_normal", "btn_searchbar_over"].map(image),
-            find: ["btn_find_normal", "btn_find_over"].map(|name| gpu.load_texture(grf, &format!("{UI}private_airplane\\{name}.bmp"), false)),
+            find: ["btn_find_normal", "btn_find_over"].map(|name| optional_image(format!("{UI}private_airplane\\{name}.bmp"))),
             icons: ["icon_list_map", "icon_list_npc", "icon_list_mob"].map(image),
-            check: ["checkbox_0", "checkbox_1"].map(|name| gpu.load_texture(grf, &format!("{UI}{name}.bmp"), false)),
+            check: ["checkbox_0", "checkbox_1"].map(|name| optional_image(format!("{UI}{name}.bmp"))),
             bottom: image("bg_down"),
             grey: gpu.solid([GREY[0], GREY[1], GREY[2], 0xFF]),
             black: gpu.solid([0, 0, 0, 0xFF]),
@@ -170,8 +174,8 @@ impl Assets {
             dot: gpu.solid([0x0A, 0xF0, 0xF0, 0xFF]),
             destination: image("ico_destination"),
             location: image("ico_location"),
-            ellipse: gpu.load_texture(grf, &format!("{UI}anibackground.bmp"), false),
-            share: ["btn_share_normal", "btn_share_over"].map(|name| gpu.load_texture(grf, &format!("{UI}private_airplane\\{name}.bmp"), false)),
+            ellipse: optional_image(format!("{UI}anibackground.bmp")),
+            share: ["btn_share_normal", "btn_share_over"].map(|name| optional_image(format!("{UI}private_airplane\\{name}.bmp"))),
             cross: gpu.solid([0x00, 0x22, 0xAA, 0xFF]),
             hint: [
                 // The hint's backing is drawn see-through (alpha 0x66).
@@ -184,7 +188,7 @@ impl Assets {
                 ),
                 image("icon_mouse"),
             ],
-            help: ["NaviHelp_off", "NaviHelp_on"].map(|name| gpu.load_texture(grf, &format!("{UI}navigation_interface\\{name}.bmp"), false)),
+            help: ["NaviHelp_off", "NaviHelp_on"].map(|name| optional_image(format!("{UI}navigation_interface\\{name}.bmp"))),
             list_button: ["btn_roadlistwnd_normal", "btn_roadlistwnd_over"].map(image),
             set_buttons: (1..=8).map(|set| ["normal", "over"].map(|state| image(&format!("btn_roadIocn_select{set}_{state}")))).collect(),
             sets: image("bg_roadIocn_select"),
