@@ -427,9 +427,10 @@ impl CardNames {
         let codepage = rustnarok_client::net::data_codepage();
         let text = |path: &str| grf.read(path).map(|bytes| codepage.decode_without_bom_handling(&bytes).0.into_owned()).unwrap_or_default();
         let mut names = Self::parse(&text(CARD_WORDS), &text(CARDS_AFTER));
-        // MYgene Yellow Fabre Card is a custom weapon card; its visible
-        // compound name gets a readable prefix even without a GRF patch.
-        names.words.insert(31002, "Yellow Fabre".to_owned());
+        // Transitional legacy 31001+31002 name: "Yellow Fabre Slayer Knife",
+        // not "Yellow Fabre Fabre Slayer Knife". Perfect 31004 suppresses
+        // this prefix below because the card effect is already in its name.
+        names.words.insert(31002, "Yellow".to_owned());
         names
     }
 
@@ -555,7 +556,13 @@ pub fn full_name_maker(
         return (name, maker_run);
     }
     // A pet's egg or accessory keeps the pet's number in its cards: no words.
-    let words = |after| if pet_item(item.id) { Vec::new() } else { cards.of(&item.cards, after) };
+    // Perfect Fabre Slayer Knife already has its compounded card in the
+    // canonical item name; suppress the otherwise duplicated card prefix.
+    let words = |after| if pet_item(item.id) || (item.id == 31004 && item.cards[0] == 31002) {
+        Vec::new()
+    } else {
+        cards.of(&item.cards, after)
+    };
     let repeat = |count: usize| (2..=4).contains(&count).then(|| message(REPEATS + count - 2));
     for (word, count) in words(false) {
         if let Some(repeat) = repeat(count) {
