@@ -270,7 +270,12 @@ Set up https://github.com/kindraywind/rustnarok-client for me and get it running
    PR #128.
 2. **Game data**: put an official kRO `data.grf` (2024 data is what's tested) in the repository folder, or point
    `RUSTNAROK_CLIENT_GRF` at one.
-3. **English** (optional): a translation pack's `data` and `System` folders next to data.grf. Their loose files go
+3. **MYgene English UI foundation**: the MYgene branch defaults to a small verified English
+   message layer for inventory tabs, equipment labels, item quantities and pickup notices.
+   This does not translate all NPCs, quests, item tables, or skills. Set
+   `MYGENE_LANGUAGE=original` to disable the MYgene defaults while troubleshooting.
+   Keep the original GRF file paths and network langtype unchanged.
+   **English** (optional): a translation pack's `data` and `System` folders next to data.grf. Their loose files go
    before the archive. `RUSTNAROK_CLIENT_DATA=<folder>` says where they are; `none` turns them off.
 4. **Music** (optional): the official `BGM` folder (numbered mp3s) next to data.grf, or `RUSTNAROK_CLIENT_BGM=<folder>`.
 5. **A server**: see [Server](#-server).
