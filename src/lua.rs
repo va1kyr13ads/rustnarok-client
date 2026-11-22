@@ -1264,6 +1264,100 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
             ..fabre_card
         },
     );
+    // MYgene Red Thief Bug weapon line: names, slots and readable English
+    // description are client metadata. Combat is server-authoritative.
+    let sword = items.get(&1101).cloned().unwrap_or_default();
+    items.insert(
+        31006,
+        ItemInfo {
+            name: "Thief Bug Slayer Sword".into(),
+            unidentified_name: "Sword".into(),
+            resource: "MYGENE_THIEF_BUG_SLAYER".into(),
+            slots: 1,
+            description: vec![
+                "MYgene Exclusive".into(),
+                "Thief Bug Slayer Sword".into(),
+                "".into(),
+                "ATK: 17".into(),
+                "Weapon Level: 1".into(),
+                "Required Level: 1".into(),
+                "Weight: 40".into(),
+                "".into(),
+                "Effect".into(),
+                "50% chance to defeat".into(),
+                "Thief Bug family on normal hit.".into(),
+                "".into(),
+                "Targets".into(),
+                "Thief Bug Egg, Thief Bug,".into(),
+                "Female and Male Thief Bug,".into(),
+                "and Red Thief Bug.".into(),
+                "".into(),
+                "Red Thief Bug Card raises".into(),
+                "the chance to 90%.".into(),
+                "Does not affect bosses.".into(),
+                "Cannot be refined.".into(),
+            ],
+            ..sword.clone()
+        },
+    );
+    items.insert(
+        31008,
+        ItemInfo {
+            name: "P.T.B.S".into(),
+            unidentified_name: "Sword".into(),
+            resource: "MYGENE_PERFECT_THIEF_BUG_SLAYER".into(),
+            slots: 1,
+            description: vec![
+                "MYgene Exclusive".into(),
+                "World Relic".into(),
+                "Perfect Thief Bug Slayer Sword".into(),
+                "".into(),
+                "Crafted from Thief Bug".into(),
+                "Slayer Sword and Red".into(),
+                "Thief Bug Card.".into(),
+                "".into(),
+                "ATK: 25".into(),
+                "Weapon Level: 4".into(),
+                "Required Level: 40".into(),
+                "Weight: 100".into(),
+                "".into(),
+                "Effect".into(),
+                "90% chance to defeat".into(),
+                "Thief Bug family on normal hit.".into(),
+                "Requires Red Thief Bug Card.".into(),
+                "Does not affect bosses.".into(),
+                "".into(),
+                "Indestructible".into(),
+                "Cannot be refined.".into(),
+                "World lease not yet live.".into(),
+            ],
+            ..sword
+        },
+    );
+    let bug_card = items.get(&4002).cloned().unwrap_or_default();
+    items.insert(
+        31007,
+        ItemInfo {
+            name: "Red Thief Bug Card".into(),
+            unidentified_name: "Card".into(),
+            resource: "MYGENE_RED_THIEF_BUG_CARD".into(),
+            slots: 0,
+            description: vec![
+                "MYgene Exclusive Card".into(),
+                "Crimson Thief Bug essence.".into(),
+                "".into(),
+                "Compounded in Thief Bug".into(),
+                "Slayer Sword [1], raises".into(),
+                "execution chance to 90%.".into(),
+                "Targets Thief Bug family.".into(),
+                "Does not affect bosses.".into(),
+                "".into(),
+                "Perfect crafting is not".into(),
+                "yet available to players.".into(),
+            ],
+            ..bug_card
+        },
+    );
     let potion = items.get(&645).cloned().unwrap_or_default();
     items.insert(
         31003,
