@@ -1181,9 +1181,9 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
             unidentified_name: "Dagger".into(),
             slots: 1,
             description: vec![
-                "MYgene exclusive: 50% chance to instantly defeat Fabre-family monsters with a normal hit.".into(),
-                "Fabre, Pupa, Creamy, and Yellow Fabre.".into(),
-                "Compound a Yellow Fabre Card in its one slot to raise the chance to 90%.".into(),
+                "MYgene exclusive - a blade forged for Fabre hunting.".into(),
+                "Normal attacks: 50% chance to instantly defeat Fabre, Pupa, Creamy and Yellow Fabre.".into(),
+                "Insert Yellow Fabre Card [31002] to raise the chance to 90%.".into(),
             ],
             ..knife
         },
@@ -1196,8 +1196,9 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
             unidentified_name: "Card".into(),
             slots: 0,
             description: vec![
-                "MYgene exclusive: when compounded in a Fabre Slayer Knife,".into(),
-                "its Fabre-family instant-defeat chance increases from 50% to 90%.".into(),
+                "A rare golden Fabre's radiant essence.".into(),
+                "Fabre Slayer Knife [1] only.".into(),
+                "Raises its Fabre-family instant-defeat chance from 50% to 90%.".into(),
             ],
             ..fabre_card
         },
