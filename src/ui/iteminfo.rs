@@ -789,7 +789,7 @@ impl CardPictures {
         } else {
             // Vanilla Thief Bug Card artwork is an acceptable readable
             // fallback until the dedicated red card BMP is supplied.
-            self.name(4004).map(str::to_owned)
+            self.name(4016).map(str::to_owned)
         };
         if let Some(name) = name {
             self.names.insert(31007, vec![name]);
