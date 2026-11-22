@@ -264,8 +264,19 @@ impl Gpu {
     }
 
     /// Decodes an image from the GRF; magenta (the client's color key) becomes transparent.
+    /// Different Ragnarok data releases omit or rename UI bitmaps. Do not let a
+    /// missing decorative UI texture prevent MYgene from reaching the login screen.
+    /// Keep non-UI assets strict so broken maps and sprites remain visible failures.
     pub fn load_texture(&self, grf: &Grf, path: &str, smooth: bool) -> Texture {
-        self.try_load_texture(grf, path, smooth).unwrap_or_else(|error| panic!("{path}: {error}"))
+        self.try_load_texture(grf, path, smooth).unwrap_or_else(|error| {
+            let ui_path = path.replace('/', "\\").to_lowercase();
+            if ui_path.starts_with("data\\texture\\유저인터페이스\\") {
+                eprintln!("MYgene UI texture missing (transparent fallback): {path}: {error}");
+                self.solid([0, 0, 0, 0])
+            } else {
+                panic!("{path}: {error}")
+            }
+        })
     }
 
     /// A client image with its magenta background keyed out, or why it couldn't be loaded.
