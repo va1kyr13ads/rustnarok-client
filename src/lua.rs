@@ -1210,13 +1210,14 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     items.insert(
         31004,
         ItemInfo {
-            name: "Perfect Fabre Slayer Knife".into(),
+            name: "P.F.S.K".into(),
             unidentified_name: "Dagger".into(),
             resource: "MYGENE_PERFECT_FABRE_SLAYER".into(),
             slots: 1,
             description: vec![
                 "MYgene Exclusive".into(),
                 "World Relic".into(),
+                "Perfect Fabre Slayer Knife".into(),
                 "".into(),
                 "Crafted from Fabre Slayer".into(),
                 "Knife and Yellow Fabre Card.".into(),
