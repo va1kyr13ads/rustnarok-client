@@ -1476,6 +1476,42 @@ impl App {
         // over the head cast bars and what's said.
         let sprite_point = |feet: [f32; 3], y: f32| view.sprite_rect(feet, [0.0, y], [0.0, y]).map(|[x, y, ..]| [x * screen()[0], y * screen()[1]]);
         let mut base = Layer::default();
+
+        // MYgene monster selection cursor: an on-screen corner-bracket marker
+        // over the unit the player clicked to attack. Use the existing pick box
+        // so it tracks walking monsters, without altering server targeting.
+        // The marker goes away after the monster dies, despawns or is hidden.
+        if let Some(id) = game.marked_monster {
+            let alive = game.units.get(&id).is_some_and(|actor| {
+                actor.kind == MONSTER && !actor.dead && !actor.hidden && actor.remove_at.is_none()
+            });
+            if !alive {
+                game.marked_monster = None;
+            } else if let Some(target) = game.hit_boxes.iter().find(|target| target.owner == Owner::Unit(id)) {
+                let [l, t, r, b] = target.sprite;
+                let [sw, sh] = screen();
+                let [l, t, r, b] = [l.max(2.0), t.max(2.0), r.min(sw - 2.0), b.min(sh - 2.0)];
+                if r > l + 12.0 && b > t + 12.0 {
+                    let mark = "TARGET";
+                    let title_x = ((l + r - font.width(mark)) / 2.0).clamp(0.0, (sw - font.width(mark)).max(0.0));
+                    base.outlined_in(mark, [title_x, (t - font.line_height() - 5.0).max(0.0)], [255, 210, 45]);
+                    let length = ((r - l).min(b - t) * 0.20).clamp(7.0, 15.0);
+                    for (at, size) in [
+                        ([l, t], [length, 2.0]),
+                        ([l, t], [2.0, length]),
+                        ([r - length, t], [length, 2.0]),
+                        ([r - 2.0, t], [2.0, length]),
+                        ([l, b - 2.0], [length, 2.0]),
+                        ([l, b - length], [2.0, length]),
+                        ([r - length, b - 2.0], [length, 2.0]),
+                        ([r - 2.0, b - length], [2.0, length]),
+                    ] {
+                        base.sprites.push((&assets.white, at, size));
+                    }
+                }
+            }
+        }
+
         for (name, feet, color) in &labels {
             let name = crate::actor::shown_name(name);
             if let Some(point) = sprite_point(*feet, overhead::NAME_BELOW) {
