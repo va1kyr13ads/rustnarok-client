@@ -1334,15 +1334,16 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
             ..sword
         },
     );
-    // Use the original Thief Bug Card's verified icon/collection resources
-    // until dedicated Red Thief Bug BMPs are packaged. A nonexistent MYGENE
-    // resource would make the card look blank even though ID 31007 exists.
+    // Keep one consistent custom resource for identified and unidentified
+    // Card 31007. Its bitmap is generated locally if the GRF lacks it.
     let bug_card = items.get(&4016).cloned().unwrap_or_default();
     items.insert(
         31007,
         ItemInfo {
             name: "Red Thief Bug Card".into(),
-            unidentified_name: "Card".into(),
+            unidentified_name: "Red Thief Bug Card".into(),
+            resource: "MYGENE_RED_THIEF_BUG_CARD".into(),
+            unidentified_resource: "MYGENE_RED_THIEF_BUG_CARD".into(),
             slots: 0,
             description: vec![
                 "MYgene Exclusive Card".into(),
