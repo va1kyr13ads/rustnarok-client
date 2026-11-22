@@ -1378,6 +1378,31 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
             ..potion
         },
     );
+    // Reuse the official Bubble Gum's icon and collection resources so the
+    // new consumable is immediately visible without requiring new BMPs.
+    let bubble_gum = items.get(&12210).cloned().unwrap_or_default();
+    items.insert(
+        31009,
+        ItemInfo {
+            name: "Legendary Bubble Gum".into(),
+            unidentified_name: "Legendary Bubble Gum".into(),
+            description: vec![
+                "MYgene Exclusive".into(),
+                "Legendary Bubble Gum".into(),
+                "".into(),
+                "Effect".into(),
+                "+100% normal item drop rate".into(),
+                "for 15 seconds.".into(),
+                "Doubles normal drop chances;".into(),
+                "not a guaranteed drop.".into(),
+                "".into(),
+                "Independent MYgene scripted".into(),
+                "special-drop rates are".into(),
+                "not affected.".into(),
+            ],
+            ..bubble_gum
+        },
+    );
     Ok(items)
 }
 
