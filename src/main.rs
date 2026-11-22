@@ -5842,10 +5842,16 @@ fn main() {
         eprintln!("no package boxes: {error}");
         HashMap::new()
     }));
-    let messages = messages::load(&grf).unwrap_or_else(|error| {
+    let mut messages = messages::load(&grf).unwrap_or_else(|error| {
         eprintln!("no client messages: {error}");
         Vec::new()
     });
+    // MYgene English UI foundation: translate only known UI labels and basic
+    // notifications, preserving the original GRF tables and all network encodings.
+    // Compatibility switch: MYGENE_LANGUAGE=original keeps the source messages.
+    if std::env::var("MYGENE_LANGUAGE").as_deref() != Ok("original") {
+        rustnarok_client::messages::apply_mygene_english(&mut messages);
+    }
     let indoor = rustnarok_client::map::indoor_maps(&grf).unwrap_or_default();
     let minimap_exceptions = minimap_window::load_exceptions(&grf);
     let viewpoints = rustnarok_client::map::viewpoints(&grf).unwrap_or_default();
