@@ -36,10 +36,23 @@ impl Grade {
     }
 }
 
-/// The session's play mode, from `RUSTNAROK_CLIENT_PLAY`: everything when unset or unknown.
+/// Keep full driver control for debug builds, but never default a shipped
+/// release executable to the test-only command/packet-access grade.
+fn default_mode(debug_build: bool) -> Grade {
+    if debug_build { Grade::Test } else { Grade::Fair }
+}
+
+/// The session's play mode. Explicit RUSTNAROK_CLIENT_PLAY=all is still
+/// available to controlled development sessions; regular release launches
+/// default to the same access a player has.
 pub fn mode() -> Grade {
     static MODE: OnceLock<Grade> = OnceLock::new();
-    *MODE.get_or_init(|| std::env::var("RUSTNAROK_CLIENT_PLAY").ok().and_then(|mode| Grade::parse(&mode)).unwrap_or(Grade::Test))
+    *MODE.get_or_init(|| {
+        std::env::var("RUSTNAROK_CLIENT_PLAY")
+            .ok()
+            .and_then(|mode| Grade::parse(&mode))
+            .unwrap_or_else(|| default_mode(cfg!(debug_assertions)))
+    })
 }
 
 /// How the packets the servers send, and those the client sends the map server, are printed (`RUSTNAROK_CLIENT_TRACE`):
@@ -64,6 +77,14 @@ fn traced(mode: Grade, value: Option<&str>) -> Option<bool> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn release_defaults_to_player_permissions() {
+        assert_eq!(default_mode(false), Grade::Fair);
+        assert_eq!(default_mode(true), Grade::Test);
+        assert_eq!(Grade::parse("all"), Some(Grade::Test));
+        assert_eq!(Grade::parse("fair"), Some(Grade::Fair));
+    }
 
     #[test]
     fn traces_only_in_play_mode_all() {
