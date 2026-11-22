@@ -594,6 +594,26 @@ fn mygene_thief_bug_art(path: &str) -> Option<RgbaImage> {
 }
 
 pub fn load_image(grf: &Grf, path: &str) -> Result<RgbaImage, String> {
+    // Locally installed approved MYgene sword art takes priority over GRF
+    // resources. This permits distributing game-safe item icons/collection
+    // pictures as an overlay beside DATA.INI, without repacking copyrighted GRFs.
+    // Only these two custom sword identifiers can read external overlays.
+    let key = path.replace('/', "\\").to_ascii_lowercase();
+    let sword_art = (key.contains("\\item\\") || key.contains("\\collection\\"))
+        && (key.ends_with("mygene_thief_bug_slayer.bmp")
+            || key.ends_with("mygene_perfect_thief_bug_slayer.bmp"));
+    if sword_art {
+        let root = std::env::var_os("RUSTNAROK_CLIENT_DATA")
+            .map(std::path::PathBuf::from)
+            .or_else(|| std::env::current_exe().ok().and_then(|p| p.parent().map(std::path::Path::to_path_buf)));
+        if let Some(root) = root {
+            let local_path = root.join(path.replace('\\', "/"));
+            if let Ok(bytes) = std::fs::read(&local_path) {
+                return Ok(key_out(decode_image(path, &bytes)
+                    .map_err(|error| format!("{}: {error}", local_path.display()))?.to_rgba8()));
+            }
+        }
+    }
     match grf.read(path) {
         Ok(bytes) => Ok(key_out(decode_image(path, &bytes).map_err(|error| format!("{path}: {error}"))?.to_rgba8())),
         Err(error) => mygene_thief_bug_art(path).ok_or_else(|| format!("{path}: {error}")),
