@@ -3225,15 +3225,31 @@ impl Assets {
     fn load(gpu: &Gpu, grf: &Grf, font: &Font, messages: &[String]) -> Self {
         let login = format!("{UI}login_interface\\");
         let image = |path: String| gpu.load_texture(grf, &path, false);
+        // Game-data vintages use different login artwork. The older MYgene data.grf
+        // has win_login.bmp but not bg_login.tga. Missing decorative login assets
+        // must not prevent a player from reaching the login screen.
+        let login_image = |name: &str| {
+            let path = format!("{login}{name}");
+            gpu.try_load_texture(grf, &path, false).unwrap_or_else(|error| {
+                eprintln!("Optional MYgene login image unavailable: {error}");
+                gpu.solid([0, 0, 0, 0])
+            })
+        };
+        let login_background = gpu.try_load_texture(grf, &format!("{login}bg_login.tga"), false)
+            .or_else(|_| gpu.try_load_texture(grf, &format!("{login}win_login.bmp"), false))
+            .unwrap_or_else(|error| {
+                eprintln!("MYgene login background fallback unavailable: {error}");
+                gpu.solid([0, 0, 0, 0])
+            });
         let button = |folder: &str, name: &str| ["", "_a", "_b"].map(|suffix| image(format!("{folder}{name}{suffix}.bmp")));
         Self {
             background: gpu.load_texture(grf, &format!("{UI}bgi_temp.bmp"), true),
-            login: image(format!("{login}bg_login.tga")),
-            save: ["checkbox_off", "checkbox_on"].map(|name| image(format!("{login}{name}.bmp"))),
-            opening: ["normal", "over", "press"].map(|state| image(format!("{login}bt_close_{state}.bmp"))),
-            sign_up: ["normal", "over", "press"].map(|state| image(format!("{login}bt_join_{state}.bmp"))),
-            exit: ["normal", "over", "press"].map(|state| image(format!("{login}bt_close2_{state}.bmp"))),
-            service: image(format!("{login}win_service.bmp")),
+            login: login_background,
+            save: ["checkbox_off", "checkbox_on"].map(|name| login_image(&format!("{name}.bmp"))),
+            opening: ["normal", "over", "press"].map(|state| login_image(&format!("bt_close_{state}.bmp"))),
+            sign_up: ["normal", "over", "press"].map(|state| login_image(&format!("bt_join_{state}.bmp"))),
+            exit: ["normal", "over", "press"].map(|state| login_image(&format!("bt_close2_{state}.bmp"))),
+            service: login_image("win_service.bmp"),
             message: image(format!("{UI}win_msgbox.bmp")),
             char_select: char_select::Assets::load(gpu, grf, font, messages),
             char_make: char_make::Assets::load(gpu, grf),
