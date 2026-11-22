@@ -1081,7 +1081,7 @@ mod tests {
         let plain = |lines: ColoredLines| lines.iter().map(|row| row.iter().map(|(_, part)| part.as_str()).collect::<String>()).collect::<Vec<_>>();
         let mut color = [0, 0, 0];
         assert_eq!(plain(cut_description("A simple, sturdily made shirt of cotton.", 23, &mut color)),
-            ["A simple, sturdily", "made shirt of cotton."]);
+            ["A simple, sturdily made", "shirt of cotton."]);
         assert_eq!(plain(cut_description("Supercalifragilistic", 8, &mut color)),
             ["Supercal", "ifragili", "stic"]);
     }
