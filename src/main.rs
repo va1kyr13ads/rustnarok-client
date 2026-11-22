@@ -3287,8 +3287,16 @@ impl Assets {
             party: party::Assets::load(gpu, grf),
             chatroom: chatroom::Assets::load(gpu, grf),
             reputation: reputation::Assets::load(gpu, grf),
-            navi_arrows: (1..=8).map(|set| (0..8).map(|turn| image(format!("{UI}navigation_interface3\\navi_grid{set}_{turn}.tga"))).collect()).collect(),
-            navi_marker: (1..=4).map(|frame| image(format!("{UI}navigation_interface3\\location{frame}.tga"))).collect(),
+            // Legacy client GRFs can omit Navigation Interface 3 graphics.
+            // Keep gameplay accessible and render missing navigation decorations transparent.
+            navi_arrows: (1..=8).map(|set| (0..8).map(|turn| {
+                gpu.try_load_texture(grf, &format!("{UI}navigation_interface3\\navi_grid{set}_{turn}.tga"), false)
+                    .unwrap_or_else(|_| gpu.solid([0, 0, 0, 0]))
+            }).collect()).collect(),
+            navi_marker: (1..=4).map(|frame| {
+                gpu.try_load_texture(grf, &format!("{UI}navigation_interface3\\location{frame}.tga"), false)
+                    .unwrap_or_else(|_| gpu.solid([0, 0, 0, 0]))
+            }).collect(),
             url_line: gpu.solid([links::URL_COLOR[0], links::URL_COLOR[1], links::URL_COLOR[2], 0xFF]),
             link_line: gpu.solid([links::NPC_COLOR[0], links::NPC_COLOR[1], links::NPC_COLOR[2], 0xFF]),
             magic_target: gpu.try_load_texture(grf, "data\\texture\\effect\\magic_target.tga", false).ok(),
