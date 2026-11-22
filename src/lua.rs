@@ -1273,6 +1273,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
             name: "Thief Bug Slayer Sword".into(),
             unidentified_name: "Sword".into(),
             resource: "MYGENE_THIEF_BUG_SLAYER".into(),
+            unidentified_resource: "MYGENE_THIEF_BUG_SLAYER".into(),
             slots: 1,
             description: vec![
                 "MYgene Exclusive".into(),
@@ -1306,6 +1307,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
             name: "P.T.B.S".into(),
             unidentified_name: "Sword".into(),
             resource: "MYGENE_PERFECT_THIEF_BUG_SLAYER".into(),
+            unidentified_resource: "MYGENE_PERFECT_THIEF_BUG_SLAYER".into(),
             slots: 1,
             description: vec![
                 "MYgene Exclusive".into(),
