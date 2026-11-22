@@ -705,7 +705,23 @@ impl CardPictures {
         for (id, names) in Self::parse(&text(CARD_ILLUST_ID)).names {
             pictures.names.entry(id).or_insert(names);
         }
+        // MYgene's custom Yellow Fabre Card (31002) has its own illustration.
+        // When the player hasn't installed the optional MYgene art yet, show
+        // the original Fabre Card rather than a missing image or unrelated card.
+        let custom = grf.contains(&cardbmp_path("mygene_yellow_fabre_card"));
+        pictures.map_yellow_fabre(custom);
         pictures
+    }
+
+    fn map_yellow_fabre(&mut self, has_custom_art: bool) {
+        let name = if has_custom_art {
+            Some("mygene_yellow_fabre_card".to_owned())
+        } else {
+            self.name(4002).map(str::to_owned)
+        };
+        if let Some(name) = name {
+            self.names.insert(31002, vec![name]);
+        }
     }
 
     pub fn parse(text: &str) -> Self {
@@ -1092,5 +1108,11 @@ mod tests {
         assert_eq!(table.name(4002), Some("fabre_card"));
         assert!(table.name(9).is_none());
         assert_eq!(cardbmp_path("poring_card"), format!("{UI}cardbmp\\poring_card.bmp"));
+        let mut fallback = CardPictures::parse("4002#fabre_card#\\n");
+        fallback.map_yellow_fabre(false);
+        assert_eq!(fallback.name(31002), Some("fabre_card"));
+        fallback.map_yellow_fabre(true);
+        assert_eq!(fallback.name(31002), Some("mygene_yellow_fabre_card"));
+        assert_eq!(fallback.name(4002), Some("fabre_card"));
     }
 }
