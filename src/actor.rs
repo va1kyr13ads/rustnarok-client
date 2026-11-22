@@ -870,6 +870,8 @@ pub struct SpriteSet {
     tint: Option<[u8; 3]>,
     /// MYgene-only: recolor base Fabre green pixels to yellow at decode time.
     mygene_yellow_fabre: bool,
+    /// Recolor original Thief Bug animation frames to crimson without altering ACT timing.
+    mygene_red_thief_bug: bool,
     textures: HashMap<ImageKey, Texture>,
     /// A mounted rider's body without the mount, when a headgear sits by it.
     unmounted: Option<Act>,
@@ -1056,6 +1058,7 @@ impl SpriteSet {
             scale: body_scale(job),
             tint: None,
             mygene_yellow_fabre: false,
+            mygene_red_thief_bug: false,
             textures: HashMap::new(),
             unmounted,
             delay: Default::default(),
@@ -1091,6 +1094,7 @@ impl SpriteSet {
             scale: 1.0,
             tint: None,
             mygene_yellow_fabre: false,
+            mygene_red_thief_bug: false,
             textures: HashMap::new(),
             unmounted: None,
             delay: Default::default(),
@@ -1129,6 +1133,7 @@ impl SpriteSet {
             scale: 1.0,
             tint: None,
             mygene_yellow_fabre: false,
+            mygene_red_thief_bug: false,
             textures: HashMap::new(),
             unmounted: None,
             delay: Default::default(),
@@ -1139,6 +1144,12 @@ impl SpriteSet {
     /// Fabre animation and sprites from the player's authorized game data.
     pub fn make_yellow_fabre(&mut self) {
         self.mygene_yellow_fabre = true;
+        self.textures.clear();
+    }
+
+    /// Keep the full original Thief Bug ACT animation, recoloring its SPR frames.
+    pub fn make_red_thief_bug(&mut self) {
+        self.mygene_red_thief_bug = true;
         self.textures.clear();
     }
 
@@ -1212,6 +1223,24 @@ impl SpriteSet {
                     pixel.0[0] = g;
                     pixel.0[1] = (u16::from(g) * 235 / 255) as u8;
                     pixel.0[2] = b / 2;
+                }
+            }
+        }
+        if self.mygene_red_thief_bug {
+            // Hue-neutral red treatment preserves the original silhouette,
+            // highlights, shadows and alpha while turning armor crimson.
+            // Do this once per decoded frame, never on shared base sprite data.
+            for pixel in image.pixels_mut() {
+                let [r, g, b, a] = pixel.0;
+                if a == 0 { continue; }
+                let light = r.max(g).max(b);
+                let dark = r.min(g).min(b);
+                // Leave almost-black outlines unchanged. Retain the source
+                // value contrast, while giving brighter shell pixels a red hue.
+                if light > 24 {
+                    pixel.0[0] = light;
+                    pixel.0[1] = (u16::from(dark) * 2 / 5 + u16::from(light) / 5).min(255) as u8;
+                    pixel.0[2] = (u16::from(dark) * 3 / 5).min(255) as u8;
                 }
             }
         }
@@ -4552,6 +4581,7 @@ mod tests {
             scale: 1.0,
             tint: None,
             mygene_yellow_fabre: false,
+            mygene_red_thief_bug: false,
             textures: HashMap::new(),
             unmounted: None,
             delay: Default::default(),
@@ -4841,6 +4871,7 @@ mod tests {
             scale: 1.0,
             tint: None,
             mygene_yellow_fabre: false,
+            mygene_red_thief_bug: false,
             textures: HashMap::new(),
             unmounted: None,
             delay: Default::default(),
@@ -4924,6 +4955,7 @@ mod tests {
             scale: 1.0,
             tint: None,
             mygene_yellow_fabre: false,
+            mygene_red_thief_bug: false,
             textures: HashMap::new(),
             unmounted,
             delay: Default::default(),
