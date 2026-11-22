@@ -594,15 +594,18 @@ fn mygene_thief_bug_art(path: &str) -> Option<RgbaImage> {
 }
 
 pub fn load_image(grf: &Grf, path: &str) -> Result<RgbaImage, String> {
-    // Locally installed approved MYgene sword art takes priority over GRF
-    // resources. This permits distributing game-safe item icons/collection
-    // pictures as an overlay beside DATA.INI, without repacking copyrighted GRFs.
-    // Only these two custom sword identifiers can read external overlays.
+    // Custom MYgene images may live beside DATA.INI, without modifying
+    // original Ragnarok GRFs. This includes all three card presentation
+    // paths: inventory icon, collection thumbnail and full card artwork.
+    // Keep the allowlist explicit so normal GRF resource resolution remains
+    // untouched. Future MYgene custom cards should follow this same rule.
     let key = path.replace('/', "\\").to_ascii_lowercase();
-    let sword_art = (key.contains("\\item\\") || key.contains("\\collection\\"))
+    let mygene_overlay = ((key.contains("\\item\\") || key.contains("\\collection\\"))
         && (key.ends_with("mygene_thief_bug_slayer.bmp")
-            || key.ends_with("mygene_perfect_thief_bug_slayer.bmp"));
-    if sword_art {
+            || key.ends_with("mygene_perfect_thief_bug_slayer.bmp")
+            || key.ends_with("mygene_red_thief_bug_card.bmp")))
+        || (key.contains("\\cardbmp\\") && key.ends_with("mygene_red_thief_bug_card.bmp"));
+    if mygene_overlay {
         let root = std::env::var_os("RUSTNAROK_CLIENT_DATA")
             .map(std::path::PathBuf::from)
             .or_else(|| std::env::current_exe().ok().and_then(|p| p.parent().map(std::path::Path::to_path_buf)));
