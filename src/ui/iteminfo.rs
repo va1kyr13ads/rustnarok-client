@@ -1108,7 +1108,7 @@ mod tests {
         assert_eq!(table.name(4002), Some("fabre_card"));
         assert!(table.name(9).is_none());
         assert_eq!(cardbmp_path("poring_card"), format!("{UI}cardbmp\\poring_card.bmp"));
-        let mut fallback = CardPictures::parse("4002#fabre_card#\\n");
+        let mut fallback = CardPictures::parse("4002#fabre_card#");
         fallback.map_yellow_fabre(false);
         assert_eq!(fallback.name(31002), Some("fabre_card"));
         fallback.map_yellow_fabre(true);
