@@ -580,8 +580,29 @@ impl ItemWindow {
         if let Some(rental) = rental_line(messages.get(TIME_LEFT).map_or("", String::as_str), self.shown.expires, now) {
             lines.extend(cut(&rental, RENTAL_COLUMNS, &mut color));
         }
-        for line in info.description(self.shown.identified) {
-            lines.extend(cut(line, LINE_COLUMNS, &mut color));
+        // Legacy carded knives (31001 + 31002) already have a real 90% proc.
+        // Until converted to the separate Perfect item (31004), show this
+        // accurate transitional tooltip rather than the uncarded 50% text.
+        if self.shown.identified && self.shown.item == 31001 && self.shown.cards[0] == 31002 {
+            for line in [
+                "MYgene Exclusive",
+                "Golden Fabre Card imbued.",
+                "",
+                "Fabre Execution: 90%",
+                "chance on normal hits.",
+                "Fabre, Pupa, Creamy,",
+                "and Yellow Fabre.",
+                "",
+                "Cannot be refined.",
+                "Visit World Relic Keeper",
+                "for Perfect Lv. 40 form.",
+            ] {
+                lines.extend(cut(line, LINE_COLUMNS, &mut color));
+            }
+        } else {
+            for line in info.description(self.shown.identified) {
+                lines.extend(cut(line, LINE_COLUMNS, &mut color));
+            }
         }
         lines
     }
