@@ -1336,17 +1336,17 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
             ..sword
         },
     );
-    // For inventory, borrow the stock Thief Bug Card (4016) icon from
-    // the player's existing GRF. The Red Thief Bug's separate full-size
-    // collection artwork is selected in ui/iteminfo.rs.
+    // MYgene custom-card convention: a dedicated card-shaped inventory
+    // icon, matching collection thumbnail, and separately mapped full-size
+    // cardbmp illustration. Never reuse an unrelated vanilla card graphic.
     let bug_card = items.get(&4016).cloned().unwrap_or_default();
     items.insert(
         31007,
         ItemInfo {
             name: "Red Thief Bug Card".into(),
             unidentified_name: "Red Thief Bug Card".into(),
-            // Use the vanilla Thief Bug Card's installed icon resources.
-            // Do not replace them with a nonexistent custom inventory BMP.
+            resource: "MYGENE_RED_THIEF_BUG_CARD".into(),
+            unidentified_resource: "MYGENE_RED_THIEF_BUG_CARD".into(),
             slots: 0,
             description: vec![
                 "MYgene Exclusive Card".into(),
