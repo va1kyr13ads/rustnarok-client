@@ -2180,12 +2180,28 @@ fn job_sprites(grf: &Grf, job_names: &HashMap<u16, String>, kind: u8, job: u16) 
     // MYgene custom Yellow Fabre (31050): animated with the real Fabre (1007)
     // sprite supplied by the user's GRF, then recolored in memory to yellow.
     // No new proprietary game assets are distributed.
-    let base_job = if kind == MONSTER && job == 31050 { 1007 } else { job };
-    let mut sprites = job_names.get(&base_job).and_then(|name| SpriteSet::single(grf, name, kind))?;
+    // MYgene Yellow Fabre: prefer its dedicated sprite files.
     if kind == MONSTER && job == 31050 {
+        if let Some(sprites) =
+            SpriteSet::single(grf, "mygene_yellow_fabre", kind)
+        {
+            return Some(sprites);
+        }
+
+        // Fallback to the original Fabre sprite with recoloring.
+        let mut sprites = job_names
+            .get(&1007)
+            .and_then(|name| SpriteSet::single(grf, name, kind))
+            .or_else(|| SpriteSet::single(grf, "fabre", kind))?;
+
         sprites.make_yellow_fabre();
+        return Some(sprites);
     }
-    Some(sprites)
+
+    // All other monsters retain their original mappings.
+    job_names
+        .get(&job)
+        .and_then(|name| SpriteSet::single(grf, name, kind))
 }
 
 /// Applies a ZC_SPRITE_CHANGE to a look; returns whether it changed anything drawn.
