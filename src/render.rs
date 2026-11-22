@@ -681,6 +681,19 @@ mod tests {
     }
 
     #[test]
+    fn thief_bug_weapon_art_has_expected_icon_and_collection_sizes() {
+        let normal = super::mygene_thief_bug_art("data\\texture\\유저인터페이스\\item\\MYGENE_THIEF_BUG_SLAYER.bmp").unwrap();
+        let perfect = super::mygene_thief_bug_art("data\\texture\\유저인터페이스\\collection\\MYGENE_PERFECT_THIEF_BUG_SLAYER.bmp").unwrap();
+        let card = super::mygene_thief_bug_art("data\\texture\\유저인터페이스\\item\\MYGENE_RED_THIEF_BUG_CARD.bmp").unwrap();
+        assert_eq!(normal.dimensions(), (32, 32));
+        assert_eq!(perfect.dimensions(), (75, 100));
+        assert_eq!(card.dimensions(), (32, 32));
+        assert!(normal.pixels().any(|p| p.0[3] > 0));
+        assert!(perfect.pixels().any(|p| p.0[3] > 0));
+        assert!(super::mygene_thief_bug_art("data\\texture\\other.bmp").is_none());
+    }
+
+    #[test]
     fn presented_frames_keep_a_floor_apart() {
         let floor = Duration::from_micros(6250);
         // Presenting: the floor, even while the display sleeps and waits for nothing; none known, none.
