@@ -45,6 +45,17 @@ pub fn apply_mygene_english(messages: &mut Vec<String>) {
         (CANT_CARRY, "Cannot pick up this item."),
         (1465, "Use"), (2050, "Gear"), (1471, "Etc"), (2051, "Fav"),
         (1805, "General"), (2419, "Costume"), (2685, "Title"),
+        // Character PIN: short instructions prevent text running into its keypad.
+        (1899, "Character PIN"),
+        (2566, "Enter your 4-digit PIN."),
+        (1900, "Choose a secure 4-digit PIN."),
+        (1906, ""),
+        (1907, ""),
+        (1889, "PIN created."),
+        (1891, "PIN changed."),
+        (1892, "Incorrect PIN. %d attempts remaining."),
+        (1893, "PIN confirmation did not match."),
+        (1896, "This PIN is not allowed."),
         (1362, "Show Equipment"), (1358, "Hide Equipment"),
         (1359, "Show Equipment"), (3955, "Unequip All"),
     ];
@@ -154,6 +165,15 @@ mod tests {
         assert_eq!(messages[1465], "Use");
         assert_eq!(fill(&messages[ITEM_AMOUNT], &[&"P.F.S.K", &1]), "P.F.S.K : 1 ea.");
         assert_eq!(messages[500], "Preserved message");
+    }
+
+    #[test]
+    fn mygene_pin_prompts_fit_the_keypad() {
+        let mut messages = Vec::new();
+        apply_mygene_english(&mut messages);
+        assert_eq!(messages[2566], "Enter your 4-digit PIN.");
+        assert_eq!(messages[1906], "");
+        assert_eq!(messages[1893], "PIN confirmation did not match.");
     }
 
     #[test]
