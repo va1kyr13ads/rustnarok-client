@@ -1574,6 +1574,9 @@ struct Game {
     camera_snap: bool,
     /// The last skill sent by aiming: ID, level and target.
     skill_sent: Option<(u16, u16, SkillTarget)>,
+    /// MYgene: monster selected by a successful attack click. Its screen marker
+    /// follows the live actor; NPCs, drops and unrelated units aren't marked.
+    marked_monster: Option<u32>,
     /// The attack asked for with the mouse, and when the last attack packet went out; riding a mount that can't
     /// attack.
     attack: Option<Attack>,
