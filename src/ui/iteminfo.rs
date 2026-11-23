@@ -778,6 +778,17 @@ impl CardPictures {
             .map(|root| root.join(red_path.replace('\\', "/")).is_file())
             .unwrap_or(false);
         pictures.map_red_thief_bug(installed_red || grf.contains(&red_path));
+
+        // MYgene Blue Chon Chon Card (60011): approved recolored card art
+        // installed alongside the Windows executable or in an authorized GRF.
+        // Until that BMP is installed, use the real Chonchon Card (4009).
+        let blue_path = cardbmp_path("mygene_blue_chon_chon_card");
+        let installed_blue = std::env::var_os("RUSTNAROK_CLIENT_DATA")
+            .map(std::path::PathBuf::from)
+            .or_else(|| std::env::current_exe().ok().and_then(|p| p.parent().map(std::path::Path::to_path_buf)))
+            .map(|root| root.join(blue_path.replace('\\', "/")).is_file())
+            .unwrap_or(false);
+        pictures.map_blue_chon_chon(installed_blue || grf.contains(&blue_path));
         pictures
     }
 
@@ -802,6 +813,17 @@ impl CardPictures {
         };
         if let Some(name) = name {
             self.names.insert(31007, vec![name]);
+        }
+    }
+
+    fn map_blue_chon_chon(&mut self, has_custom_art: bool) {
+        let name = if has_custom_art {
+            Some("mygene_blue_chon_chon_card".to_owned())
+        } else {
+            self.name(4009).map(str::to_owned)
+        };
+        if let Some(name) = name {
+            self.names.insert(60011, vec![name]);
         }
     }
 
@@ -1205,5 +1227,18 @@ mod tests {
         fallback.map_yellow_fabre(true);
         assert_eq!(fallback.name(31002), Some("mygene_yellow_fabre_card"));
         assert_eq!(fallback.name(4002), Some("fabre_card"));
+
+        // Blue card uses its own full artwork only when installed;
+        // fallback preserves the original Chonchon Card, never unrelated art.
+        let mut blue = CardPictures::parse("4009#chonchon_card#");
+        blue.map_blue_chon_chon(false);
+        assert_eq!(blue.name(60011), Some("chonchon_card"));
+        blue.map_blue_chon_chon(true);
+        assert_eq!(blue.name(60011), Some("mygene_blue_chon_chon_card"));
+        assert_eq!(blue.name(4009), Some("chonchon_card"));
+        assert_eq!(
+            cardbmp_path("mygene_blue_chon_chon_card"),
+            format!("{UI}cardbmp\\mygene_blue_chon_chon_card.bmp"),
+        );
     }
 }
