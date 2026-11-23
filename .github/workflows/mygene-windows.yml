@@ -5,6 +5,7 @@ on:
     branches:
       - mygene-enter-chat
       - feature/yellow-fabre
+      - feature/blue-chon-chon-slayer-20261123
     paths:
       - "src/**"
       - "Cargo.toml"
@@ -25,6 +26,18 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
       - name: Cache Rust build
         uses: Swatinem/rust-cache@v2
+      - name: Verify all Slayer item IDs match the server
+        shell: pwsh
+        run: |
+          $lua = Get-Content -LiteralPath "src/lua.rs" -Raw
+          if ([regex]::IsMatch($lua, '\b3100[1-9]\b')) {
+            throw "Old colliding Slayer item ID is still used in Windows item metadata."
+          }
+          foreach ($id in @(60001,60002,60003,60004,60006,60007,60008,60009,60010,60011,60012)) {
+            if (-not [regex]::IsMatch($lua, "(?m)^\s*$id,")) {
+              throw "Required Slayer item ID $id is missing from Windows item metadata."
+            }
+          }
       - name: Run tests
         run: cargo test --locked
       - name: Build MYgene Windows client

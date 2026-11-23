@@ -604,7 +604,9 @@ pub fn load_image(grf: &Grf, path: &str) -> Result<RgbaImage, String> {
         && (key.ends_with("mygene_thief_bug_slayer.bmp")
             || key.ends_with("mygene_perfect_thief_bug_slayer.bmp")
             || key.ends_with("mygene_red_thief_bug_card.bmp")))
-        || (key.contains("\\cardbmp\\") && key.ends_with("mygene_red_thief_bug_card.bmp"));
+        || (key.contains("\\cardbmp\\")
+            && (key.ends_with("mygene_red_thief_bug_card.bmp")
+                || key.ends_with("mygene_blue_chon_chon_card.bmp")));
     if mygene_overlay {
         let root = std::env::var_os("RUSTNAROK_CLIENT_DATA")
             .map(std::path::PathBuf::from)

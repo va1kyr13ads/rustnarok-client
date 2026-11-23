@@ -1175,7 +1175,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     // The server owns item logic; this adds accurate names, tooltips, and slots.
     let knife = items.get(&1201).cloned().unwrap_or_default();
     items.insert(
-        31001,
+        60001,
         ItemInfo {
             name: "Fabre Slayer Knife".into(),
             unidentified_name: "Dagger".into(),
@@ -1206,9 +1206,9 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
         },
     );
     // Separate server-side weapon variant: true item level/weight/range/ATK,
-    // not just a display prefix on the old dagger. Its sole slot holds card 31002.
+    // not just a display prefix on the old dagger. Its sole slot holds card 60002.
     items.insert(
-        31004,
+        60004,
         ItemInfo {
             name: "P.F.S.K".into(),
             unidentified_name: "Dagger".into(),
@@ -1245,7 +1245,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     );
     let fabre_card = items.get(&4002).cloned().unwrap_or_default();
     items.insert(
-        31002,
+        60002,
         ItemInfo {
             name: "Yellow Fabre Card".into(),
             unidentified_name: "Card".into(),
@@ -1268,7 +1268,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     // description are client metadata. Combat is server-authoritative.
     let sword = items.get(&1101).cloned().unwrap_or_default();
     items.insert(
-        31006,
+        60006,
         ItemInfo {
             name: "Thief Bug Slayer Sword".into(),
             unidentified_name: "Sword".into(),
@@ -1302,7 +1302,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
         },
     );
     items.insert(
-        31008,
+        60008,
         ItemInfo {
             name: "P.T.B.S".into(),
             unidentified_name: "Sword".into(),
@@ -1341,7 +1341,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     // View cardbmp illustration is custom for Red Thief Bug Card.
     let bug_card = items.get(&4016).cloned().unwrap_or_default();
     items.insert(
-        31007,
+        60007,
         ItemInfo {
             name: "Red Thief Bug Card".into(),
             unidentified_name: "Red Thief Bug Card".into(),
@@ -1362,9 +1362,99 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
             ..bug_card
         },
     );
+    // MYgene Slayer Series #3: Chonchon Slayer Bow [1], Blue Chon Chon
+    // Card and the future GM-only Perfect variant. Borrow official Bow and
+    // Chonchon Card resources so a current GRF can display these immediately.
+    // The server battle.cpp owns all execution chance and boss filtering.
+    let chonchon_bow = items.get(&1701).cloned().unwrap_or_default();
+    items.insert(
+        60010,
+        ItemInfo {
+            name: "Chonchon Slayer Bow".into(),
+            unidentified_name: "Bow".into(),
+            slots: 1,
+            description: vec![
+                "MYgene Exclusive".into(),
+                "Chonchon Slayer Bow [1]".into(),
+                "".into(),
+                "ATK: 17".into(),
+                "Weapon Level: 1".into(),
+                "Required Level: 4".into(),
+                "Weight: 40".into(),
+                "Range: 5 (Bow)".into(),
+                "Two-handed, cannot refine.".into(),
+                "".into(),
+                "Effect".into(),
+                "50% chance to execute".into(),
+                "Chonchon family with a".into(),
+                "successful normal bow hit.".into(),
+                "".into(),
+                "Targets".into(),
+                "Chonchon, Steel Chonchon,".into(),
+                "Hunter Fly, Blue Chon Chon.".into(),
+                "No mini-bosses, elites, MVPs.".into(),
+                "".into(),
+                "Blue Chon Chon Card raises".into(),
+                "execution chance to 90%.".into(),
+            ],
+            ..chonchon_bow.clone()
+        },
+    );
+    items.insert(
+        60012,
+        ItemInfo {
+            name: "P.C.S.B".into(),
+            unidentified_name: "Bow".into(),
+            slots: 1,
+            description: vec![
+                "MYgene Exclusive".into(),
+                "Perfect Chonchon Slayer Bow".into(),
+                "World Relic (not a drop)".into(),
+                "".into(),
+                "ATK: 25 / Weapon Level: 4".into(),
+                "Required Level: 40".into(),
+                "Range: 5 / Weight: 100".into(),
+                "Two-handed; indestructible.".into(),
+                "Cannot be refined.".into(),
+                "".into(),
+                "Effect".into(),
+                "90% execution chance on".into(),
+                "successful normal bow hits".into(),
+                "against Chonchon family.".into(),
+                "Requires Blue Chon Chon Card.".into(),
+                "No mini-boss, elite or MVP.".into(),
+                "World lease not yet live.".into(),
+            ],
+            ..chonchon_bow
+        },
+    );
+    let chonchon_card = items.get(&4009).cloned().unwrap_or_default();
+    items.insert(
+        60011,
+        ItemInfo {
+            name: "Blue Chon Chon Card".into(),
+            unidentified_name: "Blue Chon Chon Card".into(),
+            slots: 0,
+            description: vec![
+                "MYgene Exclusive Card".into(),
+                "Blue Chon Chon essence.".into(),
+                "".into(),
+                "Compound in Chonchon Slayer".into(),
+                "Bow [1] to raise execution".into(),
+                "chance from 50% to 90%.".into(),
+                "Normal bow hits only.".into(),
+                "Chonchon, Steel Chonchon,".into(),
+                "Hunter Fly, Blue Chon Chon.".into(),
+                "Excludes mini-bosses,".into(),
+                "elites, bosses and MVPs.".into(),
+                "Perfect relic not a drop.".into(),
+            ],
+            ..chonchon_card
+        },
+    );
     let potion = items.get(&645).cloned().unwrap_or_default();
     items.insert(
-        31003,
+        60003,
         ItemInfo {
             name: "Attraction Potion".into(),
             unidentified_name: "Potion".into(),
@@ -1380,7 +1470,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     // new consumable is immediately visible without requiring new BMPs.
     let bubble_gum = items.get(&12210).cloned().unwrap_or_default();
     items.insert(
-        31009,
+        60009,
         ItemInfo {
             name: "Legendary Bubble Gum".into(),
             unidentified_name: "Legendary Bubble Gum".into(),
