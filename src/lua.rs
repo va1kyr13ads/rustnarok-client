@@ -1175,7 +1175,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     // The server owns item logic; this adds accurate names, tooltips, and slots.
     let knife = items.get(&1201).cloned().unwrap_or_default();
     items.insert(
-        31001,
+        60001,
         ItemInfo {
             name: "Fabre Slayer Knife".into(),
             unidentified_name: "Dagger".into(),
@@ -1206,9 +1206,9 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
         },
     );
     // Separate server-side weapon variant: true item level/weight/range/ATK,
-    // not just a display prefix on the old dagger. Its sole slot holds card 31002.
+    // not just a display prefix on the old dagger. Its sole slot holds card 60002.
     items.insert(
-        31004,
+        60004,
         ItemInfo {
             name: "P.F.S.K".into(),
             unidentified_name: "Dagger".into(),
@@ -1245,7 +1245,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     );
     let fabre_card = items.get(&4002).cloned().unwrap_or_default();
     items.insert(
-        31002,
+        60002,
         ItemInfo {
             name: "Yellow Fabre Card".into(),
             unidentified_name: "Card".into(),
@@ -1268,7 +1268,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     // description are client metadata. Combat is server-authoritative.
     let sword = items.get(&1101).cloned().unwrap_or_default();
     items.insert(
-        31006,
+        60006,
         ItemInfo {
             name: "Thief Bug Slayer Sword".into(),
             unidentified_name: "Sword".into(),
@@ -1302,7 +1302,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
         },
     );
     items.insert(
-        31008,
+        60008,
         ItemInfo {
             name: "P.T.B.S".into(),
             unidentified_name: "Sword".into(),
@@ -1341,7 +1341,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     // View cardbmp illustration is custom for Red Thief Bug Card.
     let bug_card = items.get(&4016).cloned().unwrap_or_default();
     items.insert(
-        31007,
+        60007,
         ItemInfo {
             name: "Red Thief Bug Card".into(),
             unidentified_name: "Red Thief Bug Card".into(),
@@ -1454,7 +1454,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     );
     let potion = items.get(&645).cloned().unwrap_or_default();
     items.insert(
-        31003,
+        60003,
         ItemInfo {
             name: "Attraction Potion".into(),
             unidentified_name: "Potion".into(),
@@ -1470,7 +1470,7 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
     // new consumable is immediately visible without requiring new BMPs.
     let bubble_gum = items.get(&12210).cloned().unwrap_or_default();
     items.insert(
-        31009,
+        60009,
         ItemInfo {
             name: "Legendary Bubble Gum".into(),
             unidentified_name: "Legendary Bubble Gum".into(),
