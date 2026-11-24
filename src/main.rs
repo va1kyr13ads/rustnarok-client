@@ -2216,6 +2216,28 @@ fn job_sprites(grf: &Grf, job_names: &HashMap<u16, String>, kind: u8, job: u16) 
         return Some(sprites);
     }
 
+    // MYgene Series 4-6: reuse approved vanilla animation frames and
+    // recolor the special ID only. Every other monster stays unchanged.
+    if kind == MONSTER {
+        let variant = match job {
+            31053 => Some((1010, "mygene_purple_willow", "wilow", [185, 105, 245])),
+            31054 => Some((1195, "mygene_orange_rideword", "rideword", [255, 165, 55])),
+            31055 => Some((1023, "mygene_dark_orc", "ork_warrior", [125, 91, 151])),
+            _ => None,
+        };
+        if let Some((original, custom, fallback, color)) = variant {
+            if let Some(sprites) = SpriteSet::single(grf, custom, kind) {
+                return Some(sprites);
+            }
+            let mut sprites = job_names
+                .get(&original)
+                .and_then(|name| SpriteSet::single(grf, name, kind))
+                .or_else(|| SpriteSet::single(grf, fallback, kind))?;
+            sprites.make_mygene_series_color(color);
+            return Some(sprites);
+        }
+    }
+
     // All other monsters retain their original mappings.
     job_names
         .get(&job)
