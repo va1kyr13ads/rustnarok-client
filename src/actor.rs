@@ -872,6 +872,8 @@ pub struct SpriteSet {
     mygene_yellow_fabre: bool,
     /// Recolor original Thief Bug animation frames to crimson without altering ACT timing.
     mygene_red_thief_bug: bool,
+    /// MYgene Series 4-6: themed recolor of an installed vanilla SPR.
+    mygene_series_rgb: Option<[u8; 3]>,
     textures: HashMap<ImageKey, Texture>,
     /// A mounted rider's body without the mount, when a headgear sits by it.
     unmounted: Option<Act>,
@@ -1059,6 +1061,7 @@ impl SpriteSet {
             tint: None,
             mygene_yellow_fabre: false,
             mygene_red_thief_bug: false,
+            mygene_series_rgb: None,
             textures: HashMap::new(),
             unmounted,
             delay: Default::default(),
@@ -1095,6 +1098,7 @@ impl SpriteSet {
             tint: None,
             mygene_yellow_fabre: false,
             mygene_red_thief_bug: false,
+            mygene_series_rgb: None,
             textures: HashMap::new(),
             unmounted: None,
             delay: Default::default(),
@@ -1134,6 +1138,7 @@ impl SpriteSet {
             tint: None,
             mygene_yellow_fabre: false,
             mygene_red_thief_bug: false,
+            mygene_series_rgb: None,
             textures: HashMap::new(),
             unmounted: None,
             delay: Default::default(),
@@ -1150,6 +1155,13 @@ impl SpriteSet {
     /// Keep the full original Thief Bug ACT animation, recoloring its SPR frames.
     pub fn make_red_thief_bug(&mut self) {
         self.mygene_red_thief_bug = true;
+        self.textures.clear();
+    }
+
+    /// Decoded-frame recolor for themed MYgene monster variants, preserving
+    /// movement/attacks and the alpha silhouette of the vanilla sprite.
+    pub fn make_mygene_series_color(&mut self, rgb: [u8; 3]) {
+        self.mygene_series_rgb = Some(rgb);
         self.textures.clear();
     }
 
@@ -1242,6 +1254,19 @@ impl SpriteSet {
                     pixel.0[1] = (u16::from(dark) * 2 / 5 + u16::from(light) / 5).min(255) as u8;
                     pixel.0[2] = (u16::from(dark) * 3 / 5).min(255) as u8;
                 }
+            }
+        }
+        if let Some(rgb) = self.mygene_series_rgb {
+            for pixel in image.pixels_mut() {
+                let [r, g, b, a] = pixel.0;
+                if a == 0 { continue; }
+                let shade = (u32::from(r) * 30 + u32::from(g) * 59 +
+                    u32::from(b) * 11) / 100;
+                // Keep line art dark, retain lights and shadow details.
+                if shade < 12 { continue; }
+                pixel.0[0] = ((shade * u32::from(rgb[0])) / 255) as u8;
+                pixel.0[1] = ((shade * u32::from(rgb[1])) / 255) as u8;
+                pixel.0[2] = ((shade * u32::from(rgb[2])) / 255) as u8;
             }
         }
         if key.3 != [255; 4] {
@@ -4582,6 +4607,7 @@ mod tests {
             tint: None,
             mygene_yellow_fabre: false,
             mygene_red_thief_bug: false,
+            mygene_series_rgb: None,
             textures: HashMap::new(),
             unmounted: None,
             delay: Default::default(),
@@ -4872,6 +4898,7 @@ mod tests {
             tint: None,
             mygene_yellow_fabre: false,
             mygene_red_thief_bug: false,
+            mygene_series_rgb: None,
             textures: HashMap::new(),
             unmounted: None,
             delay: Default::default(),
@@ -4956,6 +4983,7 @@ mod tests {
             tint: None,
             mygene_yellow_fabre: false,
             mygene_red_thief_bug: false,
+            mygene_series_rgb: None,
             textures: HashMap::new(),
             unmounted,
             delay: Default::default(),

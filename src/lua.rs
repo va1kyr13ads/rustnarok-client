@@ -1362,6 +1362,202 @@ pub fn item_info(grf: &Grf) -> io::Result<HashMap<u32, ItemInfo>> {
             ..bug_card
         },
     );
+    // Slayer Series 4-6: interim official item art; custom matching color
+    // assets should be approved before changing resource names. Original
+    // MYgene 310xx item IDs remain untouched. Server handles all procs.
+    let slayer_60013 = items.get(&1601).cloned().unwrap_or_default();
+    items.insert(
+        60013,
+        ItemInfo {
+            name: "Willow Slayer Rod".into(),
+            unidentified_name: "Rod".into(),
+            slots: 1,
+            description: vec![
+                "MYgene Exclusive".into(),
+                "Purple Slayer Series".into(),
+                "Willow Slayer Rod [1]".into(),
+                "ATK 25 / Weapon Lv. 2".into(),
+                "Req. Lv. 40 / Weight 100".into(),
+                "Indestructible / No Refine".into(),
+                "50% execution: normal hits".into(),
+                "Carded: 90% execution".into(),
+                "Non-boss targets only:".into(),
+                "Willow".into(),
+                "Elder Willow".into(),
+                "Wooden Golem".into(),
+                "Purple Willow".into(),
+            ],
+            ..slayer_60013.clone()
+        },
+    );
+    items.insert(
+        60015,
+        ItemInfo {
+            name: "P.W.S.R".into(),
+            unidentified_name: "Rod".into(),
+            slots: 1,
+            description: vec![
+                "MYgene Exclusive".into(),
+                "World Relic".into(),
+                "Perfect Willow Slayer Rod".into(),
+                "ATK 25 / Weapon Lv. 4".into(),
+                "Req. Lv. 40 / Weight 100".into(),
+                "Indestructible / No Refine".into(),
+                "90% execution: normal hits".into(),
+                "Requires Purple Willow Card".into(),
+                "Only non-boss family mobs.".into(),
+                "GM-only test upgrade.".into(),
+            ],
+            ..slayer_60013
+        },
+    );
+    let card_60014 = items.get(&4010).cloned().unwrap_or_default();
+    items.insert(
+        60014,
+        ItemInfo {
+            name: "Purple Willow Card".into(),
+            unidentified_name: "Purple Willow Card".into(),
+            slots: 0,
+            description: vec![
+                "MYgene Exclusive Card".into(),
+                "Purple Slayer Series".into(),
+                "Raises matching base weapon".into(),
+                "execution chance to 90%".into(),
+                "on successful normal hits.".into(),
+                "Bosses and MVPs excluded.".into(),
+            ],
+            ..card_60014
+        },
+    );
+    let slayer_60016 = items.get(&1550).cloned().unwrap_or_default();
+    items.insert(
+        60016,
+        ItemInfo {
+            name: "Rideword Slayer Book".into(),
+            unidentified_name: "Book".into(),
+            slots: 1,
+            description: vec![
+                "MYgene Exclusive".into(),
+                "Orange Slayer Series".into(),
+                "Rideword Slayer Book [1]".into(),
+                "ATK 25 / Weapon Lv. 2".into(),
+                "Req. Lv. 40 / Weight 100".into(),
+                "Indestructible / No Refine".into(),
+                "50% execution: normal hits".into(),
+                "Carded: 90% execution".into(),
+                "Non-boss targets only:".into(),
+                "Sage Worm".into(),
+                "Rideword".into(),
+                "Death Word".into(),
+                "Orange Rideword".into(),
+            ],
+            ..slayer_60016.clone()
+        },
+    );
+    items.insert(
+        60018,
+        ItemInfo {
+            name: "P.R.S.B".into(),
+            unidentified_name: "Book".into(),
+            slots: 1,
+            description: vec![
+                "MYgene Exclusive".into(),
+                "World Relic".into(),
+                "Perfect Rideword Slayer Book".into(),
+                "ATK 25 / Weapon Lv. 4".into(),
+                "Req. Lv. 40 / Weight 100".into(),
+                "Indestructible / No Refine".into(),
+                "90% execution: normal hits".into(),
+                "Requires Orange Rideword Card".into(),
+                "Only non-boss family mobs.".into(),
+                "GM-only test upgrade.".into(),
+            ],
+            ..slayer_60016
+        },
+    );
+    let card_60017 = items.get(&4185).cloned().unwrap_or_default();
+    items.insert(
+        60017,
+        ItemInfo {
+            name: "Orange Rideword Card".into(),
+            unidentified_name: "Orange Rideword Card".into(),
+            slots: 0,
+            description: vec![
+                "MYgene Exclusive Card".into(),
+                "Orange Slayer Series".into(),
+                "Raises matching base weapon".into(),
+                "execution chance to 90%".into(),
+                "on successful normal hits.".into(),
+                "Bosses and MVPs excluded.".into(),
+            ],
+            ..card_60017
+        },
+    );
+    let slayer_60019 = items.get(&1301).cloned().unwrap_or_default();
+    items.insert(
+        60019,
+        ItemInfo {
+            name: "Orc Slayer Axe".into(),
+            unidentified_name: "Axe".into(),
+            slots: 1,
+            description: vec![
+                "MYgene Exclusive".into(),
+                "Dark Slayer Series".into(),
+                "Orc Slayer Axe [1]".into(),
+                "ATK 25 / Weapon Lv. 2".into(),
+                "Req. Lv. 40 / Weight 100".into(),
+                "Indestructible / No Refine".into(),
+                "50% execution: normal hits".into(),
+                "Carded: 90% execution".into(),
+                "Non-boss targets only:".into(),
+                "Orc Baby".into(),
+                "Orc Warrior".into(),
+                "Orc Lady".into(),
+                "High Orc".into(),
+                "Dark Orc".into(),
+            ],
+            ..slayer_60019.clone()
+        },
+    );
+    items.insert(
+        60021,
+        ItemInfo {
+            name: "P.O.S.A".into(),
+            unidentified_name: "Axe".into(),
+            slots: 1,
+            description: vec![
+                "MYgene Exclusive".into(),
+                "World Relic".into(),
+                "Perfect Orc Slayer Axe".into(),
+                "ATK 25 / Weapon Lv. 4".into(),
+                "Req. Lv. 40 / Weight 100".into(),
+                "Indestructible / No Refine".into(),
+                "90% execution: normal hits".into(),
+                "Requires Dark Orc Card".into(),
+                "Only non-boss family mobs.".into(),
+                "GM-only test upgrade.".into(),
+            ],
+            ..slayer_60019
+        },
+    );
+    let card_60020 = items.get(&4066).cloned().unwrap_or_default();
+    items.insert(
+        60020,
+        ItemInfo {
+            name: "Dark Orc Card".into(),
+            unidentified_name: "Dark Orc Card".into(),
+            slots: 0,
+            description: vec![
+                "MYgene Exclusive Card".into(),
+                "Dark Slayer Series".into(),
+                "Raises matching base weapon".into(),
+                "execution chance to 90%".into(),
+                "on successful normal hits.".into(),
+                "Bosses and MVPs excluded.".into(),
+            ],
+            ..card_60020
+        },
+    );
     let potion = items.get(&645).cloned().unwrap_or_default();
     items.insert(
         31003,
